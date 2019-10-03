@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:padding="@dimen/padding_medium"
+	android:clickable="true"
+	android:focusable="true"
+	android:background="?attr/selectableItemBackground"
+	tools:context=".RecordsFragment">
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:id="@+id/layout_row_top"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/button_record_acton"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintBottom_toTopOf="@id/layout_row_bottom">
+		<LinearLayout
+			android:id="@+id/layout_start_time"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintEnd_toStartOf="@id/layout_duration"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"
+			tools:ignore="UseCompoundDrawables">
+			<ImageView
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:src="@drawable/ic_clock"
+				tools:ignore="ContentDescription" />
+			<TextView
+				android:id="@+id/text_start_time"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:gravity="center_vertical" />
+		</LinearLayout>
+		<LinearLayout
+			android:id="@+id/layout_duration"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			app:layout_constraintStart_toEndOf="@id/layout_start_time"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"
+			tools:ignore="UseCompoundDrawables">
+			<ImageView
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:src="@drawable/ic_timer"
+				tools:ignore="ContentDescription" />
+			<TextView
+				android:id="@+id/text_duration"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:gravity="center_vertical" />
+		</LinearLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:id="@+id/layout_row_bottom"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/button_record_acton"
+		app:layout_constraintTop_toBottomOf="@id/layout_row_top"
+		app:layout_constraintBottom_toTopOf="@id/text_status">
+		<LinearLayout
+			android:id="@+id/layout_speed"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="@dimen/margin_small"
+			android:orientation="horizontal"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintEnd_toStartOf="@id/layout_distance"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"
+			tools:ignore="UseCompoundDrawables">
+			<ImageView
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:src="@drawable/ic_speed"
+				tools:ignore="ContentDescription" />
+			<TextView
+				android:id="@+id/text_speed"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:gravity="center_vertical" />
+		</LinearLayout>
+		<LinearLayout
+			android:id="@+id/layout_distance"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="@dimen/margin_small"
+			android:orientation="horizontal"
+			app:layout_constraintStart_toEndOf="@id/layout_speed"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"
+			tools:ignore="UseCompoundDrawables">
+			<ImageView
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:src="@drawable/ic_run"
+				tools:ignore="ContentDescription" />
+			<TextView
+				android:id="@+id/text_distance"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:gravity="center_vertical" />
+		</LinearLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
+	<TextView
+		android:id="@+id/text_status"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="@dimen/margin_small"
+		app:layout_constraintTop_toBottomOf="@id/layout_row_bottom"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toStartOf="parent" />
+	<com.google.android.material.button.MaterialButton
+		android:id="@+id/button_record_acton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

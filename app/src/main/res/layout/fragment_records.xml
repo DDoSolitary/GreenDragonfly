@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".RecordsFragment">
+	<me.zhanghai.android.materialprogressbar.MaterialProgressBar
+		android:id="@+id/progress_upload"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="top"
+		android:visibility="invisible"
+		app:mpb_progressStyle="horizontal"
+		app:mpb_showProgressBackground="false"
+		app:mpb_useIntrinsicPadding="false"
+		app:mpb_indeterminateTint="@color/progressBar"
+		style="@style/AppTheme.ProgressBar" />
+	<androidx.recyclerview.widget.RecyclerView
+		android:id="@+id/recycler_records"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent" />
+</FrameLayout>

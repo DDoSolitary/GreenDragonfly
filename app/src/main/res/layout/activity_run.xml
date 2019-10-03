@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".RunActivity">
+	<com.google.android.material.appbar.AppBarLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:theme="@style/AppTheme.AppBarOverlay">
+		<androidx.appcompat.widget.Toolbar
+			android:id="@+id/toolbar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content" />
+	</com.google.android.material.appbar.AppBarLayout>
+	<com.baidu.mapapi.map.MapView
+		android:id="@+id/view_map"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:backgroundTint="@color/fabClose"
+		android:onClick="onFinishClicked"
+		app:layout_anchor="@id/bottom_bar"
+		app:tint="@color/fabIconLight"
+		app:srcCompat="@drawable/ic_cross" />
+	<com.google.android.material.bottomappbar.BottomAppBar
+		android:id="@+id/bottom_bar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom"
+		app:contentInsetStart="0dp"
+		app:backgroundTint="@color/primary">
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="@dimen/margin_medium"
+			android:layout_marginEnd="@dimen/margin_medium">
+			<ImageView
+				android:id="@+id/image_speed"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:src="@drawable/ic_speed"
+				android:tint="@color/textLight"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintEnd_toStartOf="@id/layout_speed_type"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintBottom_toBottomOf="parent"
+				tools:ignore="contentDescription" />
+			<LinearLayout
+				android:id="@+id/layout_speed_type"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="@dimen/margin_small"
+				android:layout_marginEnd="@dimen/margin_small"
+				android:orientation="vertical"
+				app:layout_constraintStart_toEndOf="@id/image_speed"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintBottom_toBottomOf="parent">
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginEnd="@dimen/margin_small"
+					android:gravity="center_vertical"
+					android:text="@string/now"
+					style="@style/AppTheme.TextView.Light" />
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginEnd="@dimen/margin_small"
+					android:gravity="center_vertical"
+					android:text="@string/average"
+					style="@style/AppTheme.TextView.Light" />
+			</LinearLayout>
+			<TextView
+				android:id="@+id/text_current_speed"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:gravity="center_vertical"
+				app:layout_constraintBottom_toTopOf="@id/text_average_speed"
+				app:layout_constraintStart_toEndOf="@+id/layout_speed_type"
+				app:layout_constraintTop_toTopOf="parent"
+				style="@style/AppTheme.TextView.Light" />
+			<TextView
+				android:id="@+id/text_average_speed"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:gravity="center_vertical"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:layout_constraintStart_toEndOf="@+id/layout_speed_type"
+				app:layout_constraintTop_toBottomOf="@id/text_current_speed"
+				style="@style/AppTheme.TextView.Light" />
+			<LinearLayout
+				android:id="@+id/layout_time"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="@dimen/margin_small"
+				android:orientation="horizontal"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintBottom_toTopOf="@id/layout_distance"
+				app:layout_constraintEnd_toEndOf="parent"
+				tools:ignore="UseCompoundDrawables">
+				<TextView
+					android:id="@+id/text_time"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:gravity="center_vertical"
+					style="@style/AppTheme.TextView.Light" />
+				<ImageView
+					android:id="@+id/image_time"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:src="@drawable/ic_timer"
+					android:tint="@color/textLight"
+					tools:ignore="ContentDescription" />
+			</LinearLayout>
+			<LinearLayout
+				android:id="@+id/layout_distance"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/layout_time"
+				app:layout_constraintEnd_toEndOf="parent"
+				tools:ignore="UseCompoundDrawables">
+				<TextView
+					android:id="@+id/text_distance"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:gravity="center_vertical"
+					style="@style/AppTheme.TextView.Light" />
+				<ImageView
+					android:id="@+id/image_distance"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:src="@drawable/ic_run"
+					android:tint="@color/textLight"
+					tools:ignore="ContentDescription" />
+			</LinearLayout>
+		</androidx.constraintlayout.widget.ConstraintLayout>
+	</com.google.android.material.bottomappbar.BottomAppBar>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

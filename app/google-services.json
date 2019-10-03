@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "135057729522",
+    "firebase_url": "https://greendragonfly-8af70.firebaseio.com",
+    "project_id": "greendragonfly-8af70",
+    "storage_bucket": "greendragonfly-8af70.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:135057729522:android:752b815a899c2520402d6b",
+        "android_client_info": {
+          "package_name": "org.ddosolitary.greendragonfly"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "135057729522-i205gfosj062gd9bbc4j71kib0n7pl5h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.ddosolitary.greendragonfly",
+            "certificate_hash": "a8b6599c8251bca2dd28ad51018e2917ef256511"
+          }
+        },
+        {
+          "client_id": "135057729522-u0bscmdlrks5cclr609df0on1d8tr9oc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8n5EzAFqH1CYGbBXu2Lc-_GJWTR_0-kA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "135057729522-u0bscmdlrks5cclr609df0on1d8tr9oc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

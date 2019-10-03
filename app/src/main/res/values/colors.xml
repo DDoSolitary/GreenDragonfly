@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="bottomBarBackground">#DBDBDB</color>
+	<color name="boxBackground">#00000000</color>
+	<color name="fabClose">#E53935</color>
+	<color name="fabIconDark">#5F5F5F</color>
+	<color name="fabIconLight">#ffffff</color>
+	<color name="fabRun">#43A047</color>
+	<color name="fabRunRunning">#FDD835</color>
+	<color name="mapLine">#D32F2F</color>
+	<color name="progressBar">#00695C</color>
+	<color name="snackbarErrorButton">#FFEB3B</color>
+	<color name="snackbarErrorText">@color/design_default_color_error</color>
+	<color name="text">#000000</color>
+	<color name="textError">#E53935</color>
+	<color name="textLight">#ffffff</color>
+	<color name="textWarning">#FFEB3B</color>
+	<color name="primary">#008577</color>
+</resources>
