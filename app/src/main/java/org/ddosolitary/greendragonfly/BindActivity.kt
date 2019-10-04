@@ -99,6 +99,7 @@ class BindActivity : AppCompatActivity() {
 				}
 			})
 		}
+		Utils.checkAndShowAbout(this)
 	}
 
 	override fun onRestoreInstanceState(savedInstanceState: Bundle) {

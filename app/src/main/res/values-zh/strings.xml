@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-	<string name="about">关于</string>
+	<string name="about">关于此应用</string>
 	<string name="admission_year">入学年份</string>
 	<string name="app_name">绿蜻蜓</string>
 	<string name="back">返回</string>

@@ -87,6 +87,7 @@ class MainActivity : AppCompatActivity() {
 			}
 			if (intent?.action == ACTION_SHOW_RECORDS) currentItem = 1
 		})
+		Utils.checkAndShowAbout(this)
 	}
 
 	override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -99,7 +100,7 @@ class MainActivity : AppCompatActivity() {
 		when (item.itemId) {
 			R.id.item_rebind -> startActivity(Intent(this, BindActivity::class.java))
 			R.id.item_query_count -> userVm.viewModelScope.launch { queryCount() }
-			R.id.item_about -> startActivity(Intent(this, AboutActivity::class.java))
+			R.id.item_about -> Utils.showAboutDialog(this)
 			else -> return super.onOptionsItemSelected(item)
 		}
 		return true

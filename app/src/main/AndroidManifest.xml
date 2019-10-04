@@ -40,10 +40,6 @@
 		<activity
 			android:name=".ShowRecordActivity"
 			android:theme="@style/AppTheme" />
-		<activity
-			android:name=".AboutActivity"
-			android:label="@string/about"
-			android:theme="@style/AppTheme" />
 		<service
 			android:name="com.baidu.location.f"
 			android:enabled="true"

@@ -1,6 +1,11 @@
 package org.ddosolitary.greendragonfly
 
 import android.content.Context
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.webkit.WebView
+import android.widget.FrameLayout
+import androidx.core.content.edit
 import androidx.room.Room
 import com.baidu.mapapi.map.BaiduMap
 import com.baidu.mapapi.map.BitmapDescriptorFactory
@@ -8,6 +13,7 @@ import com.baidu.mapapi.map.MarkerOptions
 import com.baidu.mapapi.map.PolylineOptions
 import com.baidu.mapapi.model.LatLng
 import com.github.kittinunf.fuel.core.Request
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.contentOrNull
@@ -85,6 +91,36 @@ class Utils {
 
 		fun checkApiResponse(res: JsonElement): Boolean {
 			return res.jsonObject["r"]?.contentOrNull == "1"
+		}
+
+		fun showAboutDialog(context: Context) {
+			val layout = FrameLayout(context)
+			val webView = WebView(context).apply {
+				layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+					val margin = context.resources.getDimensionPixelSize(R.dimen.margin_medium)
+					leftMargin = margin
+					rightMargin = margin
+				}
+				loadUrl("file:///android_asset/about.html")
+			}
+			MaterialAlertDialogBuilder(context)
+				.setTitle(R.string.about)
+				.setView(layout.apply { addView(webView) })
+				.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
+				.show()
+		}
+
+		fun checkAndShowAbout(context: Context) {
+			val pref = context.getSharedPreferences(
+				context.getString(R.string.pref_main), Context.MODE_PRIVATE
+			)
+			val keyName = context.getString(R.string.pref_key_is_first_run)
+			if (pref.getBoolean(keyName, true)) {
+				pref.edit {
+					putBoolean(keyName, false)
+					showAboutDialog(context)
+				}
+			}
 		}
 	}
 }
