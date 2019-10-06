@@ -171,7 +171,8 @@ class RecordsFragment : Fragment() {
 						},
 						StampedLocation.getDuration(locations).roundToLong()
 					)
-					val res = Json(JsonConfiguration.Stable).parseJson(
+					val parser = Json(JsonConfiguration.Stable)
+					val res = parser.parseJson(
 						getString(R.string.api_path_upload, user.apiUrl)
 							.httpPost()
 							.body(Utils.compressString(req))
@@ -179,15 +180,17 @@ class RecordsFragment : Fragment() {
 							.awaitString()
 					)
 					check(Utils.checkApiResponse(res))
+					val resMsg = parser.parseJson(res.jsonObject["m"]!!.content)
+						.jsonObject["srvresp"]!!.content
+					MaterialAlertDialogBuilder(context)
+						.setTitle(R.string.upload_result)
+						.setMessage(resMsg)
+						.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
+						.show()
 					withContext(Dispatchers.IO) {
 						Utils.getRecordDao(context!!)
 							.updateRecord(record.apply { isUploaded = true })
 					}
-					MaterialAlertDialogBuilder(context)
-						.setTitle(R.string.upload_result)
-						.setMessage(res.jsonObject["m"]!!.jsonObject["srvresp"]!!.content)
-						.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
-						.show()
 				} catch (e: Exception) {
 					Log.e(null, Log.getStackTraceString(e))
 					Crashlytics.logException(e)
