@@ -58,8 +58,8 @@ class MainActivity : AppCompatActivity() {
 				if (e1 == null || e2 == null) {
 					return super.onScroll(e1, e2, distanceX, distanceY)
 				}
-				if (e2.y - e1.y < -SCROLL_THRESHOLD && !fab.isShown) fab.show()
-				if (e2.y - e1.y > SCROLL_THRESHOLD && fab.isShown) fab.hide()
+				if (e2.y - e1.y < -SCROLL_THRESHOLD && fab.isShown) fab.hide()
+				if (e2.y - e1.y > SCROLL_THRESHOLD && !fab.isShown) fab.show()
 				return false
 			}
 		})
