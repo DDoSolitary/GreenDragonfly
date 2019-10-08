@@ -30,7 +30,7 @@
 	<string name="next">下一步</string>
 	<string name="password">密码</string>
 	<string name="query_count">查询已上传次数</string>
-	<string name="query_count_message">你已经上传了<xliff:g>%d</xliff:g>次锻炼记录</string>
+	<string name="query_count_message">你已经上传了<xliff:g>%1$d</xliff:g>次锻炼记录</string>
 	<string name="query_count_title">查询次数</string>
 	<string name="rebind">重新绑定</string>
 	<string name="recording_channel_desc">记录跑步情况时显示的通知</string>
