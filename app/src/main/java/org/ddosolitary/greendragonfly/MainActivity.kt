@@ -228,7 +228,10 @@ class MainActivity : AppCompatActivity() {
 		val pref = getSharedPreferences(getString(R.string.pref_main), Context.MODE_PRIVATE)
 		val lastCheck = pref.getString(getString(R.string.pref_key_update_last_check), null)
 		if (lastCheck != today) {
-			pref.edit { putString(getString(R.string.pref_key_update_last_check), today) }
+			pref.edit {
+				putString(getString(R.string.pref_key_update_last_check), today)
+				apply()
+			}
 			try {
 				val json = Json(JsonConfiguration.Stable)
 					.parseJson(getString(R.string.update_url).httpGet().awaitString())

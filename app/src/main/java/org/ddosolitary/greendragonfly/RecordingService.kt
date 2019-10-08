@@ -114,7 +114,10 @@ class RecordingService : Service() {
 		val pref = getSharedPreferences(getString(R.string.pref_main), Context.MODE_PRIVATE)
 		val json = pref.getString(getString(R.string.pref_key_incomplete_record), null)
 		route = if (json != null) {
-			pref.edit { remove(getString(R.string.pref_key_incomplete_record)).apply() }
+			pref.edit {
+				remove(getString(R.string.pref_key_incomplete_record))
+				apply()
+			}
 			StampedLocation.jsonToList(json).toMutableList()
 		} else mutableListOf()
 		startForeground(

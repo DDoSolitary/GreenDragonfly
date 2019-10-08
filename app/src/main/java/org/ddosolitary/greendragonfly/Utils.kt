@@ -118,8 +118,9 @@ class Utils {
 			if (pref.getBoolean(keyName, true)) {
 				pref.edit {
 					putBoolean(keyName, false)
-					showAboutDialog(context)
+					apply()
 				}
+				showAboutDialog(context)
 			}
 		}
 	}
