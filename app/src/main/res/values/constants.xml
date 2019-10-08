@@ -10,10 +10,12 @@
 	<string name="api_upload_template" translatable="false">{\'begintime\':\'%1$d\',\'endtime\':\'%2$d\',\'uid\':\'%3$s\',\'schoolno\':\'%4$s\',\'distance\':\'%5$g\',\'speed\':\'%6$g\',\'studentno\':\'%7$s\',\'atttype\':\'%8$s\',\'eventno\':\'%9$s\',\'location\':\'%10$s\',\'usetime\':\'%11$d\'}</string>
 	<string name="pref_key_is_first_run" translatable="false">KEY_IS_FIRST_RUN</string>
 	<string name="pref_key_incomplete_record" translatable="false">KEY_INCOMPLETE_RECORD</string>
+	<string name="pref_key_update_last_check" translatable="false">KEY_UPDATE_LAST_CHECK</string>
 	<string name="pref_key_user" translatable="false">KEY_USER</string>
 	<string name="pref_key_zoom" translatable="false">KEY_ZOOM</string>
 	<string name="pref_main" translatable="false">org.ddosolitary.greendragonfly.PREFERENCE_MAIN</string>
 	<string name="recording_channel_id" translatable="false">org.ddosolitary.greendragonfly.NOTIFICATION_CHANNEL_RUN</string>
 	<integer name="recording_notification_id">1</integer>
 	<string name="server_url" translatable="false">http://quantiwang.cn:8012/cloud/DflyServer</string>
+	<string name="update_url" translatable="false">https://api.github.com/repos/DDoSolitary/GreenDragonfly/releases</string>
 </resources>

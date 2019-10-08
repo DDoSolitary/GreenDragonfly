@@ -12,6 +12,7 @@ import android.os.IBinder
 import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
@@ -20,6 +21,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.viewpager.widget.ViewPager
 import com.crashlytics.android.Crashlytics
 import com.github.kittinunf.fuel.coroutines.awaitString
+import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -30,7 +32,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.json.content
 import kotlinx.serialization.json.int
+import org.threeten.bp.LocalDate
+import org.threeten.bp.format.DateTimeFormatter
 
 const val ACTION_SHOW_RECORDS = "org.ddosolitary.greendragonfly.action.SHOW_RECORDS"
 const val ACTION_UPDATE_USER = "org.ddosolitary.greendragonfly.action.UPDATE_USER"
@@ -88,6 +93,7 @@ class MainActivity : AppCompatActivity() {
 			if (intent?.action == ACTION_SHOW_RECORDS) currentItem = 1
 		})
 		Utils.checkAndShowAbout(this)
+		userVm.viewModelScope.launch { checkUpdate() }
 	}
 
 	override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -214,6 +220,30 @@ class MainActivity : AppCompatActivity() {
 				R.string.error_query_count,
 				Snackbar.LENGTH_LONG
 			).useErrorStyle(this@MainActivity).show()
+		}
+	}
+
+	private suspend fun checkUpdate() = withContext(Dispatchers.Main) {
+		val today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+		val pref = getSharedPreferences(getString(R.string.pref_main), Context.MODE_PRIVATE)
+		val lastCheck = pref.getString(getString(R.string.pref_key_update_last_check), null)
+		if (lastCheck != today) {
+			pref.edit { putString(getString(R.string.pref_key_update_last_check), today) }
+			try {
+				val json = Json(JsonConfiguration.Stable)
+					.parseJson(getString(R.string.update_url).httpGet().awaitString())
+				val latestVersion = json.jsonArray[0].jsonObject["tag_name"]!!.content
+				if ("v${BuildConfig.VERSION_NAME}" != latestVersion) {
+					MaterialAlertDialogBuilder(this@MainActivity)
+						.setTitle(R.string.update_available_title)
+						.setMessage(getString(R.string.update_available_message, latestVersion))
+						.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
+						.show()
+				}
+			} catch (e: Exception) {
+				Crashlytics.logException(e)
+				Log.e(null, Log.getStackTraceString(e))
+			}
 		}
 	}
 }
