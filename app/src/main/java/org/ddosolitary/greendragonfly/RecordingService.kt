@@ -150,24 +150,29 @@ class RecordingService : Service() {
 	private fun stopRecording(fromDestroy: Boolean) {
 		updateJob.cancel()
 		locationClient.stop()
-		if (fromDestroy) {
-			getSharedPreferences(getString(R.string.pref_main), Context.MODE_PRIVATE).edit {
-				putString(
-					getString(R.string.pref_key_incomplete_record),
-					StampedLocation.listToJson(route)
-				)
-				apply()
-			}
-		} else {
-			if (route.size >= 2) {
-				GlobalScope.launch(Dispatchers.IO) {
-					Utils.getRecordDao(this@RecordingService)
-						.addRecord(RecordEntry.fromLocations(route))
+		GlobalScope.launch(Dispatchers.Main) {
+			if (fromDestroy) {
+				getSharedPreferences(getString(R.string.pref_main), Context.MODE_PRIVATE).edit {
+					putString(
+						getString(R.string.pref_key_incomplete_record),
+						StampedLocation.listToJson(route)
+					)
+					apply()
 				}
+			} else {
+				if (route.size >= 2) {
+					withContext(Dispatchers.IO) {
+						Utils.getRecordDao(this@RecordingService)
+							.addRecord(RecordEntry.fromLocations(route))
+					}
+				}
+				ServiceCompat.stopForeground(
+					this@RecordingService,
+					ServiceCompat.STOP_FOREGROUND_REMOVE
+				)
+				stopSelf()
 			}
-			ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-			stopSelf()
+			statusLiveData.value = false
 		}
-		statusLiveData.value = false
 	}
 }
