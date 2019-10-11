@@ -124,6 +124,7 @@ class RecordsFragment : Fragment() {
 									}
 								}
 							}
+							isEnabled = true
 						}
 						Status.Pending -> {
 							setText(R.string.upload)
@@ -132,6 +133,7 @@ class RecordsFragment : Fragment() {
 									uploadRecord(recordEntry, locations)
 								}
 							}
+							isEnabled = true
 						}
 						Status.Uploaded -> {
 							setText(R.string.upload)
