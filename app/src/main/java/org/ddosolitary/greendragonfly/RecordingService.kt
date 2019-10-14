@@ -99,6 +99,7 @@ class RecordingService : Service() {
 			flags = Intent.FLAG_ACTIVITY_NEW_TASK
 		}
 		return NotificationCompat.Builder(this, getString(R.string.recording_channel_id))
+			.setPriority(NotificationCompat.PRIORITY_LOW)
 			.setSmallIcon(R.drawable.ic_run)
 			.setContentTitle(getString(R.string.recording_notification_title))
 			.setStyle(
