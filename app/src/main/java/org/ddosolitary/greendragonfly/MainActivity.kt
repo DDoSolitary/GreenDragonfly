@@ -7,8 +7,11 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
@@ -99,6 +102,11 @@ class MainActivity : AppCompatActivity() {
 	override fun onCreateOptionsMenu(menu: Menu?): Boolean {
 		super.onCreateOptionsMenu(menu)
 		menuInflater.inflate(R.menu.menu_main, menu)
+		menu!!.findItem(R.id.item_version).apply {
+			isEnabled = false
+			title = SpannableString(getString(R.string.version_template, BuildConfig.VERSION_NAME))
+				.apply { setSpan(ForegroundColorSpan(Color.GRAY), 0, length, 0) }
+		}
 		return true
 	}
 

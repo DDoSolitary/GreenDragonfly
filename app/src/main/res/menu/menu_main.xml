@@ -13,4 +13,8 @@
 		android:id="@+id/item_about"
 		android:title="@string/about"
 		app:showAsAction="never" />
+	<item
+		android:id="@+id/item_version"
+		android:title=""
+		app:showAsAction="never" />
 </menu>

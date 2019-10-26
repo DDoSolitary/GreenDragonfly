@@ -52,6 +52,7 @@
 	<string name="upload">上传</string>
 	<string name="upload_result">上传结果</string>
 	<string name="user">用户信息</string>
+	<string name="version_template">版本：%1$s</string>
 	<string name="waiting_location">正在获取位置信息</string>
 	<string name="warn_no_location">尚未收到定位数据，如果此时退出本次锻炼不会被记录。确定要结束锻炼吗？</string>
 	<string name="warn_not_in_range">你尚未达到锻炼要求。确定要结束锻炼吗?</string>

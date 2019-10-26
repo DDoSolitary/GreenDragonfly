@@ -54,6 +54,7 @@
 	<string name="upload">Upload</string>
 	<string name="upload_result">Upload Result</string>
 	<string name="user">User</string>
+	<string name="version_template">Version: %1$s</string>
 	<string name="waiting_location">Waiting for location data</string>
 	<string name="warn_no_location">No location data has been received so nothing will be recorded. Do you want to finish anyway?</string>
 	<string name="warn_not_in_range">You haven\'t met the exercising requirements yet. Do you want to finish anyway?</string>
