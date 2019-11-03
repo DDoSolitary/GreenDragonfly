@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
@@ -20,6 +21,7 @@ import kotlinx.coroutines.*
 const val ACTION_START_RECORDING = "org.ddosolitary.greendragonfly.action.START_RECORDING"
 const val ACTION_FINISH_RECORDING = "org.ddosolitary.greendragonfly.action.FINISH_RECORDING"
 private const val UPDATE_INTERVAL = 1000L
+private const val WAKELOCK_TIMEOUT = 60 * 60 * 1000L
 
 class RecordingService : Service() {
 	inner class LocalBinder : Binder() {
@@ -28,6 +30,7 @@ class RecordingService : Service() {
 
 	private lateinit var locationClient: LocationClient
 	private lateinit var updateJob: Job
+	private lateinit var wakeLock: PowerManager.WakeLock
 	private val binder = LocalBinder()
 	lateinit var route: MutableList<StampedLocation>
 	var isRecording = false
@@ -37,6 +40,9 @@ class RecordingService : Service() {
 
 	override fun onCreate() {
 		super.onCreate()
+		wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+			newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply { acquire(WAKELOCK_TIMEOUT) }
+		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			val channel = NotificationChannel(
 				getString(R.string.recording_channel_id),
@@ -64,6 +70,7 @@ class RecordingService : Service() {
 
 	override fun onDestroy() {
 		if (isRecording) stopRecording(true)
+		wakeLock.release()
 		super.onDestroy()
 	}
 
