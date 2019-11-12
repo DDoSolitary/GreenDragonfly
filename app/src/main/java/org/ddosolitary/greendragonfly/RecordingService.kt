@@ -22,6 +22,7 @@ const val ACTION_START_RECORDING = "org.ddosolitary.greendragonfly.action.START_
 const val ACTION_FINISH_RECORDING = "org.ddosolitary.greendragonfly.action.FINISH_RECORDING"
 private const val UPDATE_INTERVAL = 1000L
 private const val WAKELOCK_TIMEOUT = 60 * 60 * 1000L
+private const val WAKELOCK_TAG = "GreenDragonfly:RecordingService"
 
 class RecordingService : Service() {
 	inner class LocalBinder : Binder() {
@@ -41,7 +42,7 @@ class RecordingService : Service() {
 	override fun onCreate() {
 		super.onCreate()
 		wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-			newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply { acquire(WAKELOCK_TIMEOUT) }
+			newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG).apply { acquire(WAKELOCK_TIMEOUT) }
 		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			val channel = NotificationChannel(
