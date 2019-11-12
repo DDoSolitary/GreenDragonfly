@@ -29,6 +29,7 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import java.security.MessageDigest
 
 private const val PASSWORD_HASH_ALGORITHM = "MD5"
+private const val LOG_TAG = "BindActivity"
 
 class BindActivity : AppCompatActivity() {
 	@Serializable
@@ -174,7 +175,7 @@ class BindActivity : AppCompatActivity() {
 				.parse(BindAccountViewModel.ApiSchoolInfo.serializer().list, res)
 			setIsWorking(false)
 		} catch (e: Exception) {
-			Log.e(null, Log.getStackTraceString(e))
+			Log.e(LOG_TAG, Log.getStackTraceString(e))
 			Crashlytics.logException(e)
 			setProgressEnabled(false)
 			getErrorSnackbar(R.string.error_get_schools).apply {
@@ -212,7 +213,7 @@ class BindActivity : AppCompatActivity() {
 			ViewModelProviders.of(this@BindActivity)[UserInfoFragment.UserInfoViewModel::class.java]
 				.user.value = vm.toUserInfo()
 		} catch (e: Exception) {
-			Log.e(null, Log.getStackTraceString(e))
+			Log.e(LOG_TAG, Log.getStackTraceString(e))
 			Crashlytics.logException(e)
 			getErrorSnackbar(R.string.error_get_user).show()
 		} finally {
@@ -273,7 +274,7 @@ class BindActivity : AppCompatActivity() {
 			})
 			finish()
 		} catch (e: Exception) {
-			Log.e(null, Log.getStackTraceString(e))
+			Log.e(LOG_TAG, Log.getStackTraceString(e))
 			Crashlytics.logException(e)
 			getErrorSnackbar(R.string.error_bind).show()
 		} finally {

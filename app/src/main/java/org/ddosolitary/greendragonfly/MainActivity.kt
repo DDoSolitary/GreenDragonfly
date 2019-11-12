@@ -44,6 +44,7 @@ const val ACTION_SHOW_RECORDS = "org.ddosolitary.greendragonfly.action.SHOW_RECO
 const val ACTION_UPDATE_USER = "org.ddosolitary.greendragonfly.action.UPDATE_USER"
 private const val LOCATION_PERMISSION_REQUEST = 0
 private const val SCROLL_THRESHOLD = 200
+private const val LOG_TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 	private val recordsFragment = RecordsFragment()
@@ -221,7 +222,7 @@ class MainActivity : AppCompatActivity() {
 				.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
 				.show()
 		} catch (e: Exception) {
-			Log.e(null, Log.getStackTraceString(e))
+			Log.e(LOG_TAG, Log.getStackTraceString(e))
 			Crashlytics.logException(e)
 			Snackbar.make(
 				pager,
@@ -253,7 +254,7 @@ class MainActivity : AppCompatActivity() {
 				}
 			} catch (e: Exception) {
 				Crashlytics.logException(e)
-				Log.e(null, Log.getStackTraceString(e))
+				Log.e(LOG_TAG, Log.getStackTraceString(e))
 			}
 		}
 	}

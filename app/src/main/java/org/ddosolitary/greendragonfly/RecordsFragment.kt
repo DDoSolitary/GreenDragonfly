@@ -31,6 +31,8 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import org.threeten.bp.format.DateTimeFormatter
 import kotlin.math.roundToLong
 
+private const val LOG_TAG = "RecordsFragment"
+
 class RecordsFragment : Fragment() {
 	private enum class Status { Invalid, Pending, Conflict, Uploaded }
 	private data class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
@@ -194,7 +196,7 @@ class RecordsFragment : Fragment() {
 							.updateRecord(record.apply { isUploaded = true })
 					}
 				} catch (e: Exception) {
-					Log.e(null, Log.getStackTraceString(e))
+					Log.e(LOG_TAG, Log.getStackTraceString(e))
 					Crashlytics.logException(e)
 					Snackbar.make(
 						view!!.parent as ViewGroup,
