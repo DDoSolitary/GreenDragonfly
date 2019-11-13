@@ -2,6 +2,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 	<string name="about">About</string>
 	<string name="admission_year">Admission Year</string>
+	<string name="allow_location_mocking">Allow location mocking.</string>
 	<string name="app_name">Green Dragonfly</string>
 	<string name="average" translatable="false">AVG</string>
 	<string name="back">Back</string>
@@ -11,8 +12,10 @@
 	<string name="class_id">Class</string>
 	<string name="close">Close</string>
 	<string name="confirm">Confirm</string>
+	<string name="debug_options">Debug Options</string>
 	<string name="delete">Delete</string>
 	<string name="distance_template"><xliff:g>%1$.2f</xliff:g> m</string>
+	<string name="enable_location_logging">Enable location logging.</string>
 	<string name="error">Error</string>
 	<string name="error_bind">Error occurred when binding to the account.</string>
 	<string name="error_get_schools">Error occurred when retrieving the school list.</string>

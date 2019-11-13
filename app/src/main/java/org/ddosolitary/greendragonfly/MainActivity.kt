@@ -84,13 +84,18 @@ class MainActivity : AppCompatActivity() {
 				supportFragmentManager,
 				BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT
 			) {
-				private val fragments = arrayOf(UserInfoFragment(), recordsFragment)
+				private val fragments = if (BuildConfig.DEBUG) {
+					arrayOf(UserInfoFragment(), recordsFragment, DebugOptionsFragment())
+				} else {
+					arrayOf(UserInfoFragment(), recordsFragment)
+				}
 
 				override fun getCount(): Int = fragments.size
 				override fun getItem(position: Int): Fragment = fragments[position]
 				override fun getPageTitle(position: Int): CharSequence? = when (position) {
 					0 -> getString(R.string.user)
 					1 -> getString(R.string.records)
+					2 -> getString(R.string.debug_options)
 					else -> null
 				}
 			}

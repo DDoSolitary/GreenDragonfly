@@ -7,11 +7,13 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.edit
 import androidx.lifecycle.MutableLiveData
+import androidx.preference.PreferenceManager
 import com.baidu.location.BDAbstractLocationListener
 import com.baidu.location.BDLocation
 import com.baidu.location.LocationClient
@@ -23,6 +25,7 @@ const val ACTION_FINISH_RECORDING = "org.ddosolitary.greendragonfly.action.FINIS
 private const val UPDATE_INTERVAL = 1000L
 private const val WAKELOCK_TIMEOUT = 60 * 60 * 1000L
 private const val WAKELOCK_TAG = "GreenDragonfly:RecordingService"
+private const val LOG_TAG = "RecordingService"
 
 class RecordingService : Service() {
 	inner class LocalBinder : Binder() {
@@ -120,6 +123,7 @@ class RecordingService : Service() {
 	}
 
 	private fun startRecording() {
+		val debugPref = PreferenceManager.getDefaultSharedPreferences(this)
 		val pref = getSharedPreferences(getString(R.string.pref_main), Context.MODE_PRIVATE)
 		val json = pref.getString(getString(R.string.pref_key_incomplete_record), null)
 		route = if (json != null) {
@@ -139,18 +143,38 @@ class RecordingService : Service() {
 				coorType = "bd09ll"
 				locationMode = LocationClientOption.LocationMode.Device_Sensors
 				setOpenAutoNotifyMode()
-				if (BuildConfig.DEBUG) setEnableSimulateGps(true)
+				setEnableSimulateGps(debugPref.getBoolean(getString(R.string.pref_key_allow_mocking), false))
 			}
+			val logLocation = debugPref.getBoolean(getString(R.string.pref_key_log_location), false)
 			registerLocationListener(object : BDAbstractLocationListener() {
 				override fun onReceiveLocation(location: BDLocation?) {
-					if (location != null && location.locType == BDLocation.TypeGpsLocation) {
-						route.add(
-							StampedLocation(
-								System.currentTimeMillis(),
-								location.latitude,
-								location.longitude
+					if (location != null) {
+						if (logLocation) {
+							Log.d(
+								LOG_TAG, """
+									Location data received:
+									Location type: ${location.locType}
+									Longitude: ${location.longitude}
+									Latitude: ${location.latitude}
+									Altitude: ${location.altitude}
+									Radius: ${location.radius}
+									Direction: ${location.direction}
+									Speed: ${location.speed}
+									Time: ${location.time}
+									Satellite count: ${location.satelliteNumber}
+									Accuracy: ${location.gpsAccuracyStatus}
+								""".trimIndent()
 							)
-						)
+						}
+						if (location.locType == BDLocation.TypeGpsLocation) {
+							route.add(
+								StampedLocation(
+									System.currentTimeMillis(),
+									location.latitude,
+									location.longitude
+								)
+							)
+						}
 					}
 				}
 			})
