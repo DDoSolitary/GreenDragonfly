@@ -3,15 +3,15 @@ package org.ddosolitary.greendragonfly
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
 import android.widget.TextView
+import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.viewModelScope
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,10 +32,12 @@ import org.threeten.bp.format.DateTimeFormatter
 import kotlin.math.roundToLong
 
 private const val LOG_TAG = "RecordsFragment"
+private const val MILLIS_OF_DAY = 24 * 60 * 60 * 1000L
 
 class RecordsFragment : Fragment() {
 	private enum class Status { Invalid, Pending, Conflict, Uploaded }
 	private data class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
+
 	private inner class RecyclerAdapter :
 		RecyclerView.Adapter<ViewHolder>() {
 
@@ -73,11 +75,43 @@ class RecordsFragment : Fragment() {
 				}
 				if (cnt >= plan.maxTimesPerDay) Status.Conflict else Status.Pending
 			}
-			holder.view.apply {
-				setOnClickListener {
-					context.startActivity(Intent(context, ShowRecordActivity::class.java).apply {
+			val gestureDetector = GestureDetectorCompat(context!!, object : GestureDetector.SimpleOnGestureListener() {
+				override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+					context!!.startActivity(Intent(context, ShowRecordActivity::class.java).apply {
 						putExtra(EXTRA_RECORD, StampedLocation.listToJson(locations))
 					})
+					return true
+				}
+
+				override fun onDoubleTap(e: MotionEvent?): Boolean {
+					return updateTimeStamps(-MILLIS_OF_DAY)
+				}
+
+				override fun onLongPress(e: MotionEvent?) {
+					updateTimeStamps(MILLIS_OF_DAY)
+				}
+
+				private fun updateTimeStamps(offset: Long): Boolean {
+					val debugPref = PreferenceManager.getDefaultSharedPreferences(context!!)
+					val allowChange = debugPref.getBoolean(getString(R.string.pref_key_allow_change_date), false)
+					if (status != Status.Uploaded && !isUploading && allowChange) {
+						vm.records[position] = RecordEntry.fromLocations(
+							locations.map { it.copy(timeStamp = it.timeStamp + offset) }
+						).apply { id = recordEntry.id }
+						vm.viewModelScope.launch(Dispatchers.Main) {
+							withContext(Dispatchers.IO) {
+								Utils.getRecordDao(context!!).updateRecord(vm.records[position])
+							}
+							notifyItemChanged(position)
+						}
+						return true
+					}
+					return false
+				}
+			})
+			holder.view.apply {
+				setOnTouchListener { _, event ->
+					gestureDetector.onTouchEvent(event)
 				}
 				findViewById<TextView>(R.id.text_start_time).text =
 					startTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))

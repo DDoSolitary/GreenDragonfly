@@ -2,6 +2,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 	<string name="about">About</string>
 	<string name="admission_year">Admission Year</string>
+	<string name="allow_change_date">Allow change date of the records.</string>
 	<string name="allow_location_mocking">Allow location mocking.</string>
 	<string name="app_name">Green Dragonfly</string>
 	<string name="average" translatable="false">AVG</string>
