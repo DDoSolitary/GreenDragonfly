@@ -4,6 +4,9 @@
 		domain="sharedpref"
 		path="org.ddosolitary.greendragonfly.PREFERENCE_MAIN.xml" />
 	<include
+		domain="sharedpref"
+		path="org.ddosolitary.greendragonfly_preferences.xml" />
+	<include
 		domain="database"
 		path="." />
 </full-backup-content>
