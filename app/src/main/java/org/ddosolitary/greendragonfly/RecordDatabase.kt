@@ -25,6 +25,17 @@ class RecordEntry(
 ) {
 	@PrimaryKey(autoGenerate = true)
 	var id: Int = 0
+	@Ignore
+	val locations: List<StampedLocation>
+
+	init {
+		val param = GCMParameterSpec(ENCRYPTION_TAG_LEN, iv)
+		val data = Cipher.getInstance(ENCRYPTION_CIPHER).run {
+			init(Cipher.DECRYPT_MODE, getKey(), param)
+			doFinal(encryptedRecord)
+		}
+		locations = StampedLocation.jsonToList(String(data))
+	}
 
 	companion object {
 		private fun genKey(): Key {
@@ -61,15 +72,6 @@ class RecordEntry(
 				doFinal(StampedLocation.listToJson(locations).toUtf8Bytes())
 			}, iv, false)
 		}
-	}
-
-	fun getLocations(): List<StampedLocation> {
-		val param = GCMParameterSpec(ENCRYPTION_TAG_LEN, iv)
-		val data = Cipher.getInstance(ENCRYPTION_CIPHER).run {
-			init(Cipher.DECRYPT_MODE, getKey(), param)
-			doFinal(encryptedRecord)
-		}
-		return StampedLocation.jsonToList(String(data))
 	}
 }
 

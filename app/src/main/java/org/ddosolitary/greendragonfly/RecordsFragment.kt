@@ -55,7 +55,7 @@ class RecordsFragment : Fragment() {
 
 		override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 			val recordEntry = vm.records[position]
-			val locations = recordEntry.getLocations()
+			val locations = recordEntry.locations
 			val startTime = Utils.millisToTime(locations.first().timeStamp)
 			val speed = StampedLocation.getAverageSpeed(locations)
 			val distance = StampedLocation.getDistance(locations)
@@ -69,7 +69,7 @@ class RecordsFragment : Fragment() {
 			} else {
 				val cnt = vm.records.count {
 					val targetDate = Utils.millisToTime(
-						it.getLocations().first().timeStamp
+						it.locations.first().timeStamp
 					).toLocalDate()
 					return@count it.isUploaded && targetDate.isEqual(startTime.toLocalDate())
 				}
