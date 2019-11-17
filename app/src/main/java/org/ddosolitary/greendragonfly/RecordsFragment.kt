@@ -56,6 +56,20 @@ class RecordsFragment : Fragment() {
 		override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 			val recordEntry = vm.records[position]
 			val locations = recordEntry.locations
+			if (locations == null) {
+				holder.view.apply {
+					findViewById<TextView>(R.id.text_start_time).setText(R.string.na)
+					findViewById<TextView>(R.id.text_duration).setText(R.string.na)
+					findViewById<TextView>(R.id.text_distance).setText(R.string.na)
+					findViewById<TextView>(R.id.text_speed).setText(R.string.na)
+					findViewById<Button>(R.id.button_record_acton).visibility = View.INVISIBLE
+					findViewById<TextView>(R.id.text_status).apply {
+						setText(R.string.record_corrupted)
+						setTextColor(context.getColor(R.color.textError))
+					}
+				}
+				return
+			}
 			val startTime = Utils.millisToTime(locations.first().timeStamp)
 			val speed = StampedLocation.getAverageSpeed(locations)
 			val distance = StampedLocation.getDistance(locations)
@@ -68,9 +82,8 @@ class RecordsFragment : Fragment() {
 				Status.Invalid
 			} else {
 				val cnt = vm.records.count {
-					val targetDate = Utils.millisToTime(
-						it.locations.first().timeStamp
-					).toLocalDate()
+					if (it.locations == null) return@count false
+					val targetDate = Utils.millisToTime(it.locations.first().timeStamp).toLocalDate()
 					return@count it.isUploaded && targetDate.isEqual(startTime.toLocalDate())
 				}
 				if (cnt >= plan.maxTimesPerDay) Status.Conflict else Status.Pending

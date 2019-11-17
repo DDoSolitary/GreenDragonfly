@@ -29,6 +29,7 @@
 	<string name="male">Male</string>
 	<string name="max_times_per_day">Max Times per Day</string>
 	<string name="min_distance">Min Distance (m)</string>
+	<string name="na">N/A</string>
 	<string name="name">Name</string>
 	<string name="update_available_message">A new version <xliff:g>%1$s</xliff:g> has been released. Please update.</string>
 	<string name="update_available_title">Update Available</string>
@@ -39,6 +40,7 @@
 	<string name="query_count_message">You have uploaded <xliff:g>%1$d</xliff:g> records.</string>
 	<string name="query_count_title">Query Count</string>
 	<string name="rebind">Rebind</string>
+	<string name="record_corrupted">Record data corrupted</string>
 	<string name="recording_channel_desc">The notification shown when you\'re recording your running status.</string>
 	<string name="recording_channel_name">Recording Service</string>
 	<string name="recording_notification_content">Current speed: <xliff:g>%1$.2f</xliff:g> m/s\nAverage speed: <xliff:g>%2$.2f</xliff:g> m/s\nElapsed time: <xliff:g>%3$s</xliff:g>\nDistance: <xliff:g>%4$.2f</xliff:g> m</string>

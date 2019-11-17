@@ -31,12 +31,14 @@
 	<string name="name">姓名</string>
 	<string name="update_available_message"><xliff:g>%1$s</xliff:g> 已经发布。请更新至最新版本。</string>
 	<string name="update_available_title">版本更新</string>
+	<string name="na">N/A</string>
 	<string name="next">下一步</string>
 	<string name="password">密码</string>
 	<string name="query_count">查询已上传次数</string>
 	<string name="query_count_message">你已经上传了<xliff:g>%1$d</xliff:g>次锻炼记录</string>
 	<string name="query_count_title">查询次数</string>
 	<string name="rebind">重新绑定</string>
+	<string name="record_corrupted">记录数据已损坏</string>
 	<string name="recording_channel_desc">记录跑步情况时显示的通知</string>
 	<string name="recording_channel_name">跑步记录服务</string>
 	<string name="recording_notification_content">当前速度：<xliff:g>%1$.2f</xliff:g> m/s\n平均速度：<xliff:g>%2$.2f</xliff:g> m/s\n用时：<xliff:g>%3$s</xliff:g>\n路程：<xliff:g>%4$.2f</xliff:g> m</string>

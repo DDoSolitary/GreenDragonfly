@@ -2,7 +2,9 @@ package org.ddosolitary.greendragonfly
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import android.util.Log
 import androidx.room.*
+import com.crashlytics.android.Crashlytics
 import kotlinx.serialization.toUtf8Bytes
 import java.security.Key
 import java.security.KeyStore
@@ -16,6 +18,7 @@ private const val ENCRYPTION_KEY_ALIAS = "record-encryption-key"
 private const val ENCRYPTION_CIPHER = "AES/GCM/NoPadding"
 private const val ENCRYPTION_IV_LEN = 12
 private const val ENCRYPTION_TAG_LEN = 128
+private const val LOG_TAG = "RecordEntry"
 
 @Entity(tableName = "records")
 class RecordEntry(
@@ -26,15 +29,23 @@ class RecordEntry(
 	@PrimaryKey(autoGenerate = true)
 	var id: Int = 0
 	@Ignore
-	val locations: List<StampedLocation>
+	val locations: List<StampedLocation>?
 
 	init {
-		val param = GCMParameterSpec(ENCRYPTION_TAG_LEN, iv)
-		val data = Cipher.getInstance(ENCRYPTION_CIPHER).run {
-			init(Cipher.DECRYPT_MODE, getKey(), param)
-			doFinal(encryptedRecord)
+		var result: List<StampedLocation>? = null
+		try {
+			val param = GCMParameterSpec(ENCRYPTION_TAG_LEN, iv)
+			val data = Cipher.getInstance(ENCRYPTION_CIPHER).run {
+				init(Cipher.DECRYPT_MODE, getKey(), param)
+				doFinal(encryptedRecord)
+			}
+			result = StampedLocation.jsonToList(String(data))
+		} catch (e: Exception) {
+			Log.e(LOG_TAG, Log.getStackTraceString(e))
+			Crashlytics.logException(e)
+		} finally {
+			locations = result
 		}
-		locations = StampedLocation.jsonToList(String(data))
 	}
 
 	companion object {
