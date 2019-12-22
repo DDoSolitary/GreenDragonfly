@@ -107,10 +107,13 @@ class RecordsFragment : Fragment() {
 				private fun updateTimeStamps(offset: Long): Boolean {
 					val debugPref = PreferenceManager.getDefaultSharedPreferences(context!!)
 					val allowChange = debugPref.getBoolean(getString(R.string.pref_key_allow_change_date), false)
-					if (status != Status.Uploaded && !isUploading && allowChange) {
+					if (!isUploading && allowChange) {
 						vm.records[position] = RecordEntry.fromLocations(
 							locations.map { it.copy(timeStamp = it.timeStamp + offset) }
-						).apply { id = recordEntry.id }
+						).apply {
+							id = recordEntry.id
+							isUploaded = recordEntry.isUploaded
+						}
 						vm.viewModelScope.launch(Dispatchers.Main) {
 							withContext(Dispatchers.IO) {
 								Utils.getRecordDao(context!!).updateRecord(vm.records[position])
