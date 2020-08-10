@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -74,7 +74,7 @@ class UserInfoFragment : Fragment() {
 		val user = MutableLiveData<UserInfo>()
 	}
 
-	private val vm by lazy { ViewModelProviders.of(activity!!)[UserInfoViewModel::class.java] }
+	private val vm by lazy { ViewModelProvider(requireActivity())[UserInfoViewModel::class.java] }
 
 	override fun onCreateView(
 		inflater: LayoutInflater, container: ViewGroup?,

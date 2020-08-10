@@ -19,10 +19,9 @@ import androidx.core.content.edit
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.viewpager.widget.ViewPager
-import com.crashlytics.android.Crashlytics
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
@@ -30,6 +29,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,7 +49,7 @@ private const val LOG_TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
 	private val recordsFragment = RecordsFragment()
 	private val userVm by lazy {
-		ViewModelProviders.of(this)[UserInfoFragment.UserInfoViewModel::class.java]
+		ViewModelProvider(this)[UserInfoFragment.UserInfoViewModel::class.java]
 	}
 	private val pager
 		get() = findViewById<ViewPager>(R.id.pager_tab)
@@ -228,7 +228,7 @@ class MainActivity : AppCompatActivity() {
 				.show()
 		} catch (e: Exception) {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			Crashlytics.logException(e)
+			FirebaseCrashlytics.getInstance().recordException(e)
 			Snackbar.make(
 				pager,
 				R.string.error_query_count,
@@ -258,7 +258,7 @@ class MainActivity : AppCompatActivity() {
 						.show()
 				}
 			} catch (e: Exception) {
-				Crashlytics.logException(e)
+				FirebaseCrashlytics.getInstance().recordException(e)
 				Log.e(LOG_TAG, Log.getStackTraceString(e))
 			}
 		}

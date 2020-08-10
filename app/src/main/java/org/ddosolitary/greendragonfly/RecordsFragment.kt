@@ -1,5 +1,6 @@
 package org.ddosolitary.greendragonfly
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,18 +10,18 @@ import android.widget.TextView
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.baidu.mapapi.model.LatLng
-import com.crashlytics.android.Crashlytics
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.httpPost
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,6 +54,7 @@ class RecordsFragment : Fragment() {
 
 		override fun getItemCount(): Int = vm.records.size
 
+		@SuppressLint("ClickableViewAccessibility")
 		override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 			val recordEntry = vm.records[position]
 			val locations = recordEntry.locations
@@ -236,7 +238,7 @@ class RecordsFragment : Fragment() {
 					check(Utils.checkApiResponse(res))
 					val resMsg = parser.parseJson(res.jsonObject["m"]!!.content)
 						.jsonObject["srvresp"]!!.content
-					MaterialAlertDialogBuilder(context)
+					MaterialAlertDialogBuilder(context!!)
 						.setTitle(R.string.upload_result)
 						.setMessage(resMsg)
 						.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
@@ -247,7 +249,7 @@ class RecordsFragment : Fragment() {
 					}
 				} catch (e: Exception) {
 					Log.e(LOG_TAG, Log.getStackTraceString(e))
-					Crashlytics.logException(e)
+					FirebaseCrashlytics.getInstance().recordException(e)
 					Snackbar.make(
 						view!!.parent as ViewGroup,
 						R.string.error_upload,
@@ -263,7 +265,7 @@ class RecordsFragment : Fragment() {
 		lateinit var records: MutableList<RecordEntry>
 	}
 
-	private val vm by lazy { ViewModelProviders.of(activity!!)[RecordsViewModel::class.java] }
+	private val vm by lazy { ViewModelProvider(requireActivity())[RecordsViewModel::class.java] }
 
 	override fun onCreateView(
 		inflater: LayoutInflater, container: ViewGroup?,

@@ -10,20 +10,20 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.viewpager.widget.ViewPager
-import com.crashlytics.android.Crashlytics
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.httpPost
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.list
 import kotlinx.serialization.toUtf8Bytes
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import java.security.MessageDigest
@@ -50,7 +50,7 @@ class BindActivity : AppCompatActivity() {
 		)
 	}
 
-	private val vm by lazy { ViewModelProviders.of(this)[BindAccountViewModel::class.java] }
+	private val vm by lazy { ViewModelProvider(this)[BindAccountViewModel::class.java] }
 	private val nextButton
 		get() = findViewById<Button>(R.id.button_next)
 	private val cancelButton
@@ -176,7 +176,7 @@ class BindActivity : AppCompatActivity() {
 			setIsWorking(false)
 		} catch (e: Exception) {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			Crashlytics.logException(e)
+			FirebaseCrashlytics.getInstance().recordException(e)
 			setProgressEnabled(false)
 			getErrorSnackbar(R.string.error_get_schools).apply {
 				setAction(R.string.retry) { vm.viewModelScope.launch { fetchSchoolList() } }
@@ -210,11 +210,11 @@ class BindActivity : AppCompatActivity() {
 			vm.classId = fields[2]
 			vm.admissionYear = fields[3]
 			pager.setCurrentItem(1, true)
-			ViewModelProviders.of(this@BindActivity)[UserInfoFragment.UserInfoViewModel::class.java]
+			ViewModelProvider(this@BindActivity)[UserInfoFragment.UserInfoViewModel::class.java]
 				.user.value = vm.toUserInfo()
 		} catch (e: Exception) {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			Crashlytics.logException(e)
+			FirebaseCrashlytics.getInstance().recordException(e)
 			getErrorSnackbar(R.string.error_get_user).show()
 		} finally {
 			setIsWorking(false)
@@ -275,7 +275,7 @@ class BindActivity : AppCompatActivity() {
 			finish()
 		} catch (e: Exception) {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			Crashlytics.logException(e)
+			FirebaseCrashlytics.getInstance().recordException(e)
 			getErrorSnackbar(R.string.error_bind).show()
 		} finally {
 			setIsWorking(false)
