@@ -11,7 +11,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
-import androidx.lifecycle.Observer
 import com.baidu.mapapi.map.MapStatusUpdateFactory
 import com.baidu.mapapi.map.MapView
 import com.baidu.mapapi.map.MyLocationData
@@ -52,7 +51,7 @@ class RunActivity : AppCompatActivity() {
 						serviceIntent.apply { action = ACTION_START_RECORDING })
 					service.statusLiveData.observe(
 						this@RunActivity,
-						Observer {
+						{
 							if (it) {
 								onStatusUpdate()
 							} else {

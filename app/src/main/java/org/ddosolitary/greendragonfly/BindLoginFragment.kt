@@ -10,7 +10,6 @@ import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 
 private const val STATE_SELECTED_ITEM = "SELECTED_ITEM"
@@ -39,7 +38,7 @@ class BindLoginFragment : Fragment() {
 		view!!.run {
 			vm.schools.run {
 				value?.let { updateSchoolList(it) }
-				observe(viewLifecycleOwner, Observer { updateSchoolList(it) })
+				observe(viewLifecycleOwner, { updateSchoolList(it) })
 			}
 			findViewById<AutoCompleteTextView>(R.id.dropdown_schools).apply {
 				setOnItemClickListener { _, _, position, _ -> vm.selectedSchool = position }

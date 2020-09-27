@@ -17,7 +17,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.toUtf8Bytes
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneId
@@ -84,13 +85,13 @@ class Utils {
 
 		fun compressString(s: String): ByteArray {
 			ByteArrayOutputStream().use { buf ->
-				GZIPOutputStream(buf).use { it.write(s.toUtf8Bytes()) }
+				GZIPOutputStream(buf).use { it.write(s.encodeToByteArray()) }
 				return buf.toByteArray()
 			}
 		}
 
 		fun checkApiResponse(res: JsonElement): Boolean {
-			return res.jsonObject["r"]?.contentOrNull == "1"
+			return res.jsonObject["r"]?.jsonPrimitive?.contentOrNull == "1"
 		}
 
 		fun showAboutDialog(context: Context) {

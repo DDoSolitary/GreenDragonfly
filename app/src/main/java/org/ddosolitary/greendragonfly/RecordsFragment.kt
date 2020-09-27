@@ -26,8 +26,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.json.content
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import org.threeten.bp.format.DateTimeFormatter
 import kotlin.math.roundToLong
@@ -227,8 +227,7 @@ class RecordsFragment : Fragment() {
 						},
 						StampedLocation.getDuration(locations).roundToLong()
 					)
-					val parser = Json(JsonConfiguration.Stable)
-					val res = parser.parseJson(
+					val res = Json.parseToJsonElement(
 						getString(R.string.api_path_upload, user.apiUrl)
 							.httpPost()
 							.body(Utils.compressString(req))
@@ -236,8 +235,8 @@ class RecordsFragment : Fragment() {
 							.awaitString()
 					)
 					check(Utils.checkApiResponse(res))
-					val resMsg = parser.parseJson(res.jsonObject["m"]!!.content)
-						.jsonObject["srvresp"]!!.content
+					val resMsg = Json.parseToJsonElement(res.jsonObject["m"]!!.jsonPrimitive.content)
+						.jsonObject["srvresp"]!!.jsonPrimitive.content
 					MaterialAlertDialogBuilder(context!!)
 						.setTitle(R.string.upload_result)
 						.setMessage(resMsg)

@@ -33,10 +33,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.json.content
-import kotlinx.serialization.json.int
+import kotlinx.serialization.json.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 
@@ -209,7 +206,7 @@ class MainActivity : AppCompatActivity() {
 	private suspend fun queryCount() = withContext(Dispatchers.Main) {
 		try {
 			val user = UserInfo.getUser(this@MainActivity)!!
-			val res = Json(JsonConfiguration.Stable).parseJson(
+			val res = Json.parseToJsonElement(
 				getString(R.string.api_path_query_count, user.apiUrl)
 					.httpPost()
 					.body(
@@ -223,7 +220,7 @@ class MainActivity : AppCompatActivity() {
 			check(Utils.checkApiResponse(res))
 			MaterialAlertDialogBuilder(this@MainActivity)
 				.setTitle(R.string.query_count_title)
-				.setMessage(getString(R.string.query_count_message, res.jsonObject["m"]!!.int))
+				.setMessage(getString(R.string.query_count_message, res.jsonObject["m"]!!.jsonPrimitive.int))
 				.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
 				.show()
 		} catch (e: Exception) {
@@ -247,9 +244,8 @@ class MainActivity : AppCompatActivity() {
 				apply()
 			}
 			try {
-				val json = Json(JsonConfiguration.Stable)
-					.parseJson(getString(R.string.update_url).httpGet().awaitString())
-				val latestVersion = json.jsonArray[0].jsonObject["tag_name"]!!.content
+				val json = Json.parseToJsonElement(getString(R.string.update_url).httpGet().awaitString())
+				val latestVersion = json.jsonArray[0].jsonObject["tag_name"]!!.jsonPrimitive.content
 				if ("v${BuildConfig.VERSION_NAME}" != latestVersion) {
 					MaterialAlertDialogBuilder(this@MainActivity)
 						.setTitle(R.string.update_available_title)

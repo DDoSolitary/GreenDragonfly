@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.core.content.edit
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 enum class Gender {
 	Male,
@@ -44,7 +43,7 @@ data class UserInfo(
 					context.getString(R.string.pref_main),
 					Context.MODE_PRIVATE
 				).getString(context.getString(R.string.pref_key_user), null)?.let {
-					user = Json(JsonConfiguration.Stable).parse(serializer(), it)
+					user = Json.decodeFromString(serializer(), it)
 				}
 			}
 			return user
@@ -52,7 +51,7 @@ data class UserInfo(
 
 		fun saveUser(context: Context, user: UserInfo) {
 			this.user = user
-			val json = Json(JsonConfiguration.Stable).stringify(serializer(), user)
+			val json = Json.encodeToString(serializer(), user)
 			context.getSharedPreferences(
 				context.getString(R.string.pref_main),
 				Context.MODE_PRIVATE

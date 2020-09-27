@@ -21,10 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.toUtf8Bytes
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import java.security.MessageDigest
 
@@ -171,8 +169,8 @@ class BindActivity : AppCompatActivity() {
 				.body(getString(R.string.api_get_schools))
 				.headerForApi()
 				.awaitString()
-			vm.schools.value = Json(JsonConfiguration.Stable)
-				.parse(BindAccountViewModel.ApiSchoolInfo.serializer().list, res)
+			vm.schools.value =
+				Json.decodeFromString(ListSerializer(BindAccountViewModel.ApiSchoolInfo.serializer()), res)
 			setIsWorking(false)
 		} catch (e: Exception) {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
@@ -188,7 +186,7 @@ class BindActivity : AppCompatActivity() {
 		setIsWorking(true)
 		val schoolId = vm.schools.value!![vm.selectedSchool!!].schoolno
 		val hashedPassword = MessageDigest.getInstance(PASSWORD_HASH_ALGORITHM).run {
-			update(vm.password.toUtf8Bytes())
+			update(vm.password.encodeToByteArray())
 			digest().joinToString("") { "%02x".format(it) }
 		}
 		try {
@@ -236,7 +234,7 @@ class BindActivity : AppCompatActivity() {
 				.headerForApi()
 				.awaitString()
 			val fields = bindRes.split(',')
-			val planRes = Json(JsonConfiguration.Stable).parse(
+			val planRes = Json.decodeFromString(
 				ApiPlanInfo.serializer(),
 				getString(R.string.api_path_get_plan, fields[1])
 					.httpPost()

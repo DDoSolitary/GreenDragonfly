@@ -3,9 +3,8 @@ package org.ddosolitary.greendragonfly
 import com.baidu.mapapi.model.LatLng
 import com.baidu.mapapi.utils.DistanceUtil
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 @Serializable
 data class StampedLocation(
@@ -46,11 +45,11 @@ data class StampedLocation(
 			} else 0.0
 
 		fun jsonToList(json: String): List<StampedLocation> {
-			return Json(JsonConfiguration.Stable).parse(serializer().list, json)
+			return Json.decodeFromString(ListSerializer(serializer()), json)
 		}
 
 		fun listToJson(list: List<StampedLocation>): String {
-			return Json(JsonConfiguration.Stable).stringify(serializer().list, list)
+			return Json.encodeToString(ListSerializer(serializer()), list)
 		}
 	}
 }

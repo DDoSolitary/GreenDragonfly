@@ -5,7 +5,6 @@ import android.security.keystore.KeyProperties
 import android.util.Log
 import androidx.room.*
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import kotlinx.serialization.toUtf8Bytes
 import java.security.Key
 import java.security.KeyStore
 import java.security.SecureRandom
@@ -80,7 +79,7 @@ class RecordEntry(
 			val param = GCMParameterSpec(ENCRYPTION_TAG_LEN, iv)
 			return RecordEntry(Cipher.getInstance(ENCRYPTION_CIPHER).run {
 				init(Cipher.ENCRYPT_MODE, getKey(), param)
-				doFinal(StampedLocation.listToJson(locations).toUtf8Bytes())
+				doFinal(StampedLocation.listToJson(locations).encodeToByteArray())
 			}, iv, false)
 		}
 	}
