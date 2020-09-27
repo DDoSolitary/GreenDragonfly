@@ -4,7 +4,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Log
 import androidx.room.*
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.bugsnag.android.Bugsnag
 import java.security.Key
 import java.security.KeyStore
 import java.security.SecureRandom
@@ -41,7 +41,7 @@ class RecordEntry(
 			result = StampedLocation.jsonToList(String(data))
 		} catch (e: Exception) {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			FirebaseCrashlytics.getInstance().recordException(e)
+			Bugsnag.notify(e)
 		} finally {
 			locations = result
 		}

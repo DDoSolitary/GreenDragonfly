@@ -22,6 +22,7 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.viewpager.widget.ViewPager
+import com.bugsnag.android.Bugsnag
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
@@ -29,7 +30,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -225,7 +225,7 @@ class MainActivity : AppCompatActivity() {
 				.show()
 		} catch (e: Exception) {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			FirebaseCrashlytics.getInstance().recordException(e)
+			Bugsnag.notify(e)
 			Snackbar.make(
 				pager,
 				R.string.error_query_count,
@@ -254,7 +254,7 @@ class MainActivity : AppCompatActivity() {
 						.show()
 				}
 			} catch (e: Exception) {
-				FirebaseCrashlytics.getInstance().recordException(e)
+				Bugsnag.notify(e)
 				Log.e(LOG_TAG, Log.getStackTraceString(e))
 			}
 		}

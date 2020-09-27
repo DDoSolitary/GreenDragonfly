@@ -53,5 +53,8 @@
 			android:exported="false"
 			android:foregroundServiceType="location"
 			tools:ignore="UnusedAttribute" />
+		<meta-data
+			android:name="com.bugsnag.android.API_KEY"
+			android:value="35ffeda8a44e6df0bf7b2756149d0925" />
 	</application>
 </manifest>

@@ -13,10 +13,10 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.viewpager.widget.ViewPager
+import com.bugsnag.android.Bugsnag
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.httpPost
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -174,7 +174,7 @@ class BindActivity : AppCompatActivity() {
 			setIsWorking(false)
 		} catch (e: Exception) {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			FirebaseCrashlytics.getInstance().recordException(e)
+			Bugsnag.notify(e)
 			setProgressEnabled(false)
 			getErrorSnackbar(R.string.error_get_schools).apply {
 				setAction(R.string.retry) { vm.viewModelScope.launch { fetchSchoolList() } }
@@ -212,7 +212,7 @@ class BindActivity : AppCompatActivity() {
 				.user.value = vm.toUserInfo()
 		} catch (e: Exception) {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			FirebaseCrashlytics.getInstance().recordException(e)
+			Bugsnag.notify(e)
 			getErrorSnackbar(R.string.error_get_user).show()
 		} finally {
 			setIsWorking(false)
@@ -273,7 +273,7 @@ class BindActivity : AppCompatActivity() {
 			finish()
 		} catch (e: Exception) {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			FirebaseCrashlytics.getInstance().recordException(e)
+			Bugsnag.notify(e)
 			getErrorSnackbar(R.string.error_bind).show()
 		} finally {
 			setIsWorking(false)

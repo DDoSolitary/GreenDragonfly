@@ -17,11 +17,11 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.baidu.mapapi.model.LatLng
+import com.bugsnag.android.Bugsnag
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.httpPost
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -248,7 +248,7 @@ class RecordsFragment : Fragment() {
 					}
 				} catch (e: Exception) {
 					Log.e(LOG_TAG, Log.getStackTraceString(e))
-					FirebaseCrashlytics.getInstance().recordException(e)
+					Bugsnag.notify(e)
 					Snackbar.make(
 						view!!.parent as ViewGroup,
 						R.string.error_upload,
