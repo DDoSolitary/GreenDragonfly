@@ -222,9 +222,7 @@ class RecordsFragment : Fragment() {
 						user.studentId,
 						user.plan!!.attType,
 						user.plan.eventId,
-						locations.joinToString {
-							LatLng(it.latitude, it.longitude).toString() + ';'
-						},
+						locations.joinToString("") { LatLng(it.latitude, it.longitude).toString() + ';' },
 						StampedLocation.getDuration(locations).roundToLong()
 					)
 					val res = Json.parseToJsonElement(
