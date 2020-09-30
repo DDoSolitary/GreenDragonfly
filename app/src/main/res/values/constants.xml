@@ -2,7 +2,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 	<string name="api_bind_template" translatable="false">name=[\'bangdingschool\',\'%1$s\',\'%2$s\',\'\']</string>
 	<string name="api_get_schools" translatable="false">name=[\'getschoolno\']</string>
-	<string name="api_get_user_template" translatable="false">name=[\'bangding\',\'%1$s\',\'%2$s\',\'%3$s\']</string>
+	<string name="api_get_user_template" translatable="false">name=[\'bangding\',\'%1$s\',\'student\',\'%2$s\',\'%3$s\']</string>
 	<string name="api_path_get_plan" translatable="false">%1$sApi/webserver/downloadRunParam</string>
 	<string name="api_path_query_count" translatable="false">%sApi/webserver/getRunDataSummary</string>
 	<string name="api_path_upload" translatable="false">%1$sApi/webserver/uploadRunData</string>
