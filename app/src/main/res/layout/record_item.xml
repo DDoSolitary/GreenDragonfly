@@ -31,8 +31,9 @@
 				android:layout_width="wrap_content"
 				android:layout_height="match_parent"
 				android:src="@drawable/ic_clock"
+				app:tint="?android:attr/textColorPrimary"
 				tools:ignore="ContentDescription" />
-			<TextView
+			<com.google.android.material.textview.MaterialTextView
 				android:id="@+id/text_start_time"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -52,8 +53,9 @@
 				android:layout_width="wrap_content"
 				android:layout_height="match_parent"
 				android:src="@drawable/ic_timer"
+				app:tint="?android:attr/textColorPrimary"
 				tools:ignore="ContentDescription" />
-			<TextView
+			<com.google.android.material.textview.MaterialTextView
 				android:id="@+id/text_duration"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -83,8 +85,9 @@
 				android:layout_width="wrap_content"
 				android:layout_height="match_parent"
 				android:src="@drawable/ic_speed"
+				app:tint="?android:attr/textColorPrimary"
 				tools:ignore="ContentDescription" />
-			<TextView
+			<com.google.android.material.textview.MaterialTextView
 				android:id="@+id/text_speed"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -105,15 +108,16 @@
 				android:layout_width="wrap_content"
 				android:layout_height="match_parent"
 				android:src="@drawable/ic_run"
+				app:tint="?android:attr/textColorPrimary"
 				tools:ignore="ContentDescription" />
-			<TextView
+			<com.google.android.material.textview.MaterialTextView
 				android:id="@+id/text_distance"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical" />
 		</LinearLayout>
 	</androidx.constraintlayout.widget.ConstraintLayout>
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/text_status"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

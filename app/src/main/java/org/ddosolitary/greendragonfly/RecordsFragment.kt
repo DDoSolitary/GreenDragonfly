@@ -137,11 +137,11 @@ class RecordsFragment : Fragment() {
 					Utils.formatSeconds(StampedLocation.getDuration(locations))
 				findViewById<TextView>(R.id.text_speed).apply {
 					text = context.getString(R.string.speed_template, speed)
-					setTextColor(context.getColor(if (speedInRange) R.color.text else R.color.textError))
+					setTextViewColor(this, !speedInRange)
 				}
 				findViewById<TextView>(R.id.text_distance).apply {
 					text = context.getString(R.string.distance_template, distance)
-					setTextColor(context.getColor(if (distanceInRange) R.color.text else R.color.textError))
+					setTextViewColor(this, !distanceInRange)
 				}
 				findViewById<TextView>(R.id.text_status).apply {
 					setText(
@@ -152,15 +152,7 @@ class RecordsFragment : Fragment() {
 							Status.Uploaded -> R.string.status_uploaded
 						}
 					)
-					setTextColor(
-						context.getColor(
-							if (status == Status.Invalid || status == Status.Conflict) {
-								R.color.textError
-							} else {
-								R.color.text
-							}
-						)
-					)
+					setTextViewColor(this, status == Status.Invalid || status == Status.Conflict)
 				}
 				findViewById<Button>(R.id.button_record_acton).apply {
 					when (status) {
@@ -197,6 +189,16 @@ class RecordsFragment : Fragment() {
 					if (isUploading) isEnabled = false
 				}
 			}
+		}
+
+		private fun setTextViewColor(view: TextView, isErr: Boolean) {
+			view.setTextColor(
+				if (isErr) {
+					view.context.getColor(R.color.textError)
+				} else {
+					Utils.resolveColorAttr(view.context, android.R.attr.textColorPrimary)
+				}
+			)
 		}
 
 		private fun setIsWorkingAndUpdate(isWorking: Boolean) {

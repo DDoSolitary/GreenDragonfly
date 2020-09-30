@@ -1,21 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+	<style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
 		<item name="colorPrimary">@color/primary</item>
-		<item name="windowActionBar">false</item>
-		<item name="windowNoTitle">true</item>
-		<item name="textInputStyle">@style/AppTheme.UnderlineBox</item>
 		<item name="snackbarStyle">@style/AppTheme.Snackbar</item>
+		<item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.PrimarySurface</item>
 		<item name="android:textViewStyle">@style/AppTheme.TextView</item>
-	</style>
-
-	<style name="AppTheme.UnderlineBox" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
-		<item name="boxBackgroundColor">@color/boxBackground</item>
-	</style>
-
-	<style name="AppTheme.UnderlineBox.ExposedDropdownMenu" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
-		<item name="boxBackgroundColor">@color/boxBackground</item>
 	</style>
 
 	<style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
@@ -23,11 +13,7 @@
 	<style name="AppTheme.Snackbar" parent="Widget.MaterialComponents.Snackbar.FullWidth" />
 
 	<style name="AppTheme.TextView" parent="Widget.MaterialComponents.TextView">
-		<item name="android:textColor">@color/text</item>
-	</style>
-
-	<style name="AppTheme.TextView.Light" parent="Widget.MaterialComponents.TextView">
-		<item name="android:textColor">@color/textLight</item>
+		<item name="android:textColor">?android:attr/textColorPrimary</item>
 	</style>
 
 	<style name="AppTheme.ProgressBar" parent="Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding">

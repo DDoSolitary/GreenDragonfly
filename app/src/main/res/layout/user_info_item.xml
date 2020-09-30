@@ -7,13 +7,13 @@
 	android:paddingBottom="@dimen/padding_medium"
 	android:paddingStart="@dimen/padding_large"
 	android:paddingEnd="@dimen/padding_large">
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/text_info_name"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginBottom="@dimen/padding_small"
 		android:textStyle="bold" />
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/text_info_value"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" />

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="bottomBarBackground">#202020</color>
+	<color name="fabClose">#C4332F</color>
+	<color name="fabRun">#1A6E1F</color>
+	<color name="fabRunRunning">#B09312</color>
+	<color name="fabIconDark">#101010</color>
+</resources>

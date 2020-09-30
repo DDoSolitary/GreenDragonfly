@@ -1,12 +1,17 @@
 package org.ddosolitary.greendragonfly
 
 import android.content.Context
+import android.util.TypedValue
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.webkit.WebView
 import android.widget.FrameLayout
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import androidx.core.content.edit
 import androidx.room.Room
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import com.baidu.mapapi.map.BaiduMap
 import com.baidu.mapapi.map.BitmapDescriptorFactory
 import com.baidu.mapapi.map.MarkerOptions
@@ -29,7 +34,8 @@ import kotlin.math.roundToLong
 private const val MAP_LINE_WIDTH = 10
 fun Snackbar.useErrorStyle(context: Context): Snackbar {
 	view.apply {
-		setBackgroundColor(context.getColor(R.color.snackbarErrorText))
+		setTextColor(context.getColor(R.color.textLight))
+		setBackgroundColor(context.getColor(R.color.snackbarErrorBackground))
 		setActionTextColor(context.getColor(R.color.snackbarErrorButton))
 	}
 	return this
@@ -102,6 +108,10 @@ class Utils {
 					leftMargin = margin
 					rightMargin = margin
 				}
+				if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK) &&
+					resources.configuration.isNightModeActive) {
+					WebSettingsCompat.setForceDark(settings, WebSettingsCompat.FORCE_DARK_ON)
+				}
 				loadUrl("file:///android_asset/about.html")
 			}
 			MaterialAlertDialogBuilder(context)
@@ -123,6 +133,13 @@ class Utils {
 				}
 				showAboutDialog(context)
 			}
+		}
+
+		@ColorInt
+		fun resolveColorAttr(context: Context, @AttrRes id: Int): Int {
+			val res = TypedValue()
+			context.theme.resolveAttribute(id, res, true)
+			return context.getColor(if (res.resourceId != 0) res.resourceId else res.data)
 		}
 	}
 }

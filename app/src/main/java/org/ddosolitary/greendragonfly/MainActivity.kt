@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity() {
 		menu!!.findItem(R.id.item_version).apply {
 			isEnabled = false
 			title = SpannableString(getString(R.string.version_template, BuildConfig.VERSION_NAME))
-				.apply { setSpan(ForegroundColorSpan(Color.GRAY), 0, length, 0) }
+				.apply { setSpan(ForegroundColorSpan(getColor(R.color.textDisabled)), 0, length, 0) }
 		}
 		return true
 	}

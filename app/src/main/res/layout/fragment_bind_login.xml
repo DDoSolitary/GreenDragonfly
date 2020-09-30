@@ -4,7 +4,10 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_height="match_parent"
 	android:layout_width="match_parent"
-	android:padding="@dimen/padding_large"
+	android:paddingStart="@dimen/padding_large"
+	android:paddingEnd="@dimen/padding_large"
+	android:paddingTop="@dimen/padding_large"
+	android:paddingBottom="0dp"
 	tools:context=".BindLoginFragment">
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -13,11 +16,11 @@
 		<com.google.android.material.textfield.TextInputLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_margin="@dimen/margin_small"
+			android:layout_margin="@dimen/margin_medium"
 			android:hint="@string/select_school"
 			android:labelFor="@+id/dropdown_schools"
-			style="@style/AppTheme.UnderlineBox.ExposedDropdownMenu">
-			<AutoCompleteTextView
+			style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
+			<com.google.android.material.textfield.MaterialAutoCompleteTextView
 				android:id="@+id/dropdown_schools"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -27,7 +30,7 @@
 		<com.google.android.material.textfield.TextInputLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_margin="@dimen/margin_small">
+			android:layout_margin="@dimen/margin_medium">
 			<com.google.android.material.textfield.TextInputEditText
 				android:id="@+id/input_student_id"
 				android:layout_width="match_parent"
@@ -41,7 +44,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			app:endIconMode="password_toggle"
-			android:layout_margin="@dimen/margin_small">
+			android:layout_margin="@dimen/margin_medium">
 			<com.google.android.material.textfield.TextInputEditText
 				android:id="@+id/input_password"
 				android:layout_width="match_parent"

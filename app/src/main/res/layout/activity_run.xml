@@ -9,7 +9,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:theme="@style/AppTheme.AppBarOverlay">
-		<androidx.appcompat.widget.Toolbar
+		<com.google.android.material.appbar.MaterialToolbar
 			android:id="@+id/toolbar"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content" />
@@ -32,8 +32,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_gravity="bottom"
-		app:contentInsetStart="0dp"
-		app:backgroundTint="@color/primary">
+		app:contentInsetStart="0dp">
 		<androidx.constraintlayout.widget.ConstraintLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -44,7 +43,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="match_parent"
 				android:src="@drawable/ic_speed"
-				android:tint="@color/textLight"
+				app:tint="@color/textLight"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toStartOf="@id/layout_speed_type"
 				app:layout_constraintTop_toTopOf="parent"
@@ -60,22 +59,22 @@
 				app:layout_constraintStart_toEndOf="@id/image_speed"
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintBottom_toBottomOf="parent">
-				<TextView
+				<com.google.android.material.textview.MaterialTextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_marginEnd="@dimen/margin_small"
 					android:gravity="center_vertical"
 					android:text="@string/now"
-					style="@style/AppTheme.TextView.Light" />
-				<TextView
+					android:textColor="@color/textLight"/>
+				<com.google.android.material.textview.MaterialTextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_marginEnd="@dimen/margin_small"
 					android:gravity="center_vertical"
 					android:text="@string/average"
-					style="@style/AppTheme.TextView.Light" />
+					android:textColor="@color/textLight"/>
 			</LinearLayout>
-			<TextView
+			<com.google.android.material.textview.MaterialTextView
 				android:id="@+id/text_current_speed"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -83,8 +82,8 @@
 				app:layout_constraintBottom_toTopOf="@id/text_average_speed"
 				app:layout_constraintStart_toEndOf="@+id/layout_speed_type"
 				app:layout_constraintTop_toTopOf="parent"
-				style="@style/AppTheme.TextView.Light" />
-			<TextView
+				android:textColor="@color/textLight"/>
+			<com.google.android.material.textview.MaterialTextView
 				android:id="@+id/text_average_speed"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -92,7 +91,7 @@
 				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintStart_toEndOf="@+id/layout_speed_type"
 				app:layout_constraintTop_toBottomOf="@id/text_current_speed"
-				style="@style/AppTheme.TextView.Light" />
+				android:textColor="@color/textLight"/>
 			<LinearLayout
 				android:id="@+id/layout_time"
 				android:layout_width="wrap_content"
@@ -103,18 +102,18 @@
 				app:layout_constraintBottom_toTopOf="@id/layout_distance"
 				app:layout_constraintEnd_toEndOf="parent"
 				tools:ignore="UseCompoundDrawables">
-				<TextView
+				<com.google.android.material.textview.MaterialTextView
 					android:id="@+id/text_time"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:gravity="center_vertical"
-					style="@style/AppTheme.TextView.Light" />
+					android:textColor="@color/textLight"/>
 				<ImageView
 					android:id="@+id/image_time"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
 					android:src="@drawable/ic_timer"
-					android:tint="@color/textLight"
+					app:tint="@color/textLight"
 					tools:ignore="ContentDescription" />
 			</LinearLayout>
 			<LinearLayout
@@ -126,18 +125,18 @@
 				app:layout_constraintTop_toBottomOf="@id/layout_time"
 				app:layout_constraintEnd_toEndOf="parent"
 				tools:ignore="UseCompoundDrawables">
-				<TextView
+				<com.google.android.material.textview.MaterialTextView
 					android:id="@+id/text_distance"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:gravity="center_vertical"
-					style="@style/AppTheme.TextView.Light" />
+					android:textColor="@color/textLight"/>
 				<ImageView
 					android:id="@+id/image_distance"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
 					android:src="@drawable/ic_run"
-					android:tint="@color/textLight"
+					app:tint="@color/textLight"
 					tools:ignore="ContentDescription" />
 			</LinearLayout>
 		</androidx.constraintlayout.widget.ConstraintLayout>

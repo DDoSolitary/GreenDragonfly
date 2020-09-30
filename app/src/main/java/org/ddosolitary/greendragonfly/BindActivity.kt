@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
@@ -114,7 +115,7 @@ class BindActivity : AppCompatActivity() {
 		}
 	}
 
-	private fun getErrorSnackbar(resId: Int): Snackbar {
+	private fun getErrorSnackbar(@StringRes resId: Int): Snackbar {
 		return Snackbar.make(pager, resId, Snackbar.LENGTH_LONG)
 			.useErrorStyle(this)
 	}

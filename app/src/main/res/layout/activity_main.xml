@@ -13,6 +13,7 @@
 			android:id="@+id/toolbar"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
 			app:layout_scrollFlags="enterAlways" />
 		<com.google.android.material.tabs.TabLayout
 			android:id="@+id/tabs"
