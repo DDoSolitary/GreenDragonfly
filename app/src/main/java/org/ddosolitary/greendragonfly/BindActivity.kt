@@ -177,6 +177,7 @@ class BindActivity : AppCompatActivity() {
 			Bugsnag.notify(e)
 			setProgressEnabled(false)
 			getErrorSnackbar(R.string.error_get_schools).apply {
+				duration = Snackbar.LENGTH_INDEFINITE
 				setAction(R.string.retry) { vm.viewModelScope.launch { fetchSchoolList() } }
 			}.show()
 		}
