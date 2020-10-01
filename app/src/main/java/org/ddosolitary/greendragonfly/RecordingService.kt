@@ -20,14 +20,16 @@ import com.baidu.location.LocationClient
 import com.baidu.location.LocationClientOption
 import kotlinx.coroutines.*
 
-const val ACTION_START_RECORDING = "org.ddosolitary.greendragonfly.action.START_RECORDING"
-const val ACTION_FINISH_RECORDING = "org.ddosolitary.greendragonfly.action.FINISH_RECORDING"
-private const val UPDATE_INTERVAL = 1000L
-private const val WAKELOCK_TIMEOUT = 60 * 60 * 1000L
-private const val WAKELOCK_TAG = "GreenDragonfly:RecordingService"
-private const val LOG_TAG = "RecordingService"
-
 class RecordingService : Service() {
+	companion object {
+		const val ACTION_START_RECORDING = "org.ddosolitary.greendragonfly.action.START_RECORDING"
+		const val ACTION_FINISH_RECORDING = "org.ddosolitary.greendragonfly.action.FINISH_RECORDING"
+		private const val UPDATE_INTERVAL = 1000L
+		private const val WAKELOCK_TIMEOUT = 60 * 60 * 1000L
+		private const val WAKELOCK_TAG = "GreenDragonfly:RecordingService"
+		private const val LOG_TAG = "RecordingService"
+	}
+
 	inner class LocalBinder : Binder() {
 		fun getService(): RecordingService = this@RecordingService
 	}

@@ -12,9 +12,11 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 
-private const val STATE_SELECTED_ITEM = "SELECTED_ITEM"
-
 class BindLoginFragment : Fragment() {
+	companion object {
+		private const val STATE_SELECTED_ITEM = "SELECTED_ITEM"
+	}
+
 	private val vm by lazy { ViewModelProvider(requireActivity())[BindAccountViewModel::class.java] }
 
 	override fun onCreateView(

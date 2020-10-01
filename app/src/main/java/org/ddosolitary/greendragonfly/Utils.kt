@@ -41,7 +41,6 @@ fun Snackbar.useErrorStyle(context: Context): Snackbar {
 	return this
 }
 
-
 fun Request.headerForApi(): Request {
 	return header("Content-Type", "application/x-www-form-urlencoded")
 }

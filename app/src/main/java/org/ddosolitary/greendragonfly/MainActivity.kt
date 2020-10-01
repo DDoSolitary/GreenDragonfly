@@ -37,13 +37,15 @@ import kotlinx.serialization.json.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 
-const val ACTION_SHOW_RECORDS = "org.ddosolitary.greendragonfly.action.SHOW_RECORDS"
-const val ACTION_UPDATE_USER = "org.ddosolitary.greendragonfly.action.UPDATE_USER"
-private const val LOCATION_PERMISSION_REQUEST = 0
-private const val SCROLL_THRESHOLD = 200
-private const val LOG_TAG = "MainActivity"
-
 class MainActivity : AppCompatActivity() {
+	companion object {
+		const val ACTION_SHOW_RECORDS = "org.ddosolitary.greendragonfly.action.SHOW_RECORDS"
+		const val ACTION_UPDATE_USER = "org.ddosolitary.greendragonfly.action.UPDATE_USER"
+		private const val LOCATION_PERMISSION_REQUEST = 0
+		private const val SCROLL_THRESHOLD = 200
+		private const val LOG_TAG = "MainActivity"
+	}
+
 	private val recordsFragment = RecordsFragment()
 	private val userVm by lazy {
 		ViewModelProvider(this)[UserInfoFragment.UserInfoViewModel::class.java]

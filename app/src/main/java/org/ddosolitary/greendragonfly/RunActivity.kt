@@ -17,9 +17,11 @@ import com.baidu.mapapi.map.MyLocationData
 import com.baidu.mapapi.model.LatLng
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-private const val DEFAULT_ZOOM_LEVEL = 19f
-
 class RunActivity : AppCompatActivity() {
+	companion object {
+		private const val DEFAULT_ZOOM_LEVEL = 19f
+	}
+
 	private lateinit var conn: ServiceConnection
 	private lateinit var service: RecordingService
 	private var lastStatusInRange = false
@@ -48,7 +50,7 @@ class RunActivity : AppCompatActivity() {
 				if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY == 0 || service.isRecording) {
 					ContextCompat.startForegroundService(
 						this@RunActivity,
-						serviceIntent.apply { action = ACTION_START_RECORDING })
+						serviceIntent.apply { action = RecordingService.ACTION_START_RECORDING })
 					service.statusLiveData.observe(
 						this@RunActivity,
 						{
@@ -56,10 +58,8 @@ class RunActivity : AppCompatActivity() {
 								onStatusUpdate()
 							} else {
 								startActivity(
-									Intent(
-										this@RunActivity,
-										MainActivity::class.java
-									).apply { action = ACTION_SHOW_RECORDS }
+									Intent(this@RunActivity, MainActivity::class.java)
+										.apply { action = MainActivity.ACTION_SHOW_RECORDS }
 								)
 								finish()
 							}
@@ -86,7 +86,7 @@ class RunActivity : AppCompatActivity() {
 
 	private fun stopRunning() {
 		startService(Intent(this, RecordingService::class.java).apply {
-			action = ACTION_FINISH_RECORDING
+			action = RecordingService.ACTION_FINISH_RECORDING
 		})
 	}
 

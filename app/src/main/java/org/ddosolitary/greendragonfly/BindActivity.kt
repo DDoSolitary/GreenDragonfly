@@ -27,10 +27,12 @@ import kotlinx.serialization.json.Json
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import java.security.MessageDigest
 
-private const val PASSWORD_HASH_ALGORITHM = "MD5"
-private const val LOG_TAG = "BindActivity"
-
 class BindActivity : AppCompatActivity() {
+	companion object {
+		private const val PASSWORD_HASH_ALGORITHM = "MD5"
+		private const val LOG_TAG = "BindActivity"
+	}
+
 	@Serializable
 	private data class ApiPlanInfo(
 		val r: String,
@@ -270,7 +272,7 @@ class BindActivity : AppCompatActivity() {
 			UserInfo.saveUser(this@BindActivity, vm.toUserInfo(fields[2], fields[1], plan))
 			startActivity(Intent(this@BindActivity, MainActivity::class.java).apply {
 				flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-				action = ACTION_UPDATE_USER
+				action = MainActivity.ACTION_UPDATE_USER
 			})
 			finish()
 		} catch (e: Exception) {

@@ -8,10 +8,12 @@ import com.baidu.mapapi.map.MapView
 import com.baidu.mapapi.model.LatLng
 import com.baidu.mapapi.model.LatLngBounds
 
-const val EXTRA_RECORD = "org.ddosolitary.greendragonfly.extra.RECORD"
 private const val SHOW_ROUTE_PADDING = 100
 
 class ShowRecordActivity : AppCompatActivity() {
+	companion object {
+		const val EXTRA_RECORD = "org.ddosolitary.greendragonfly.extra.RECORD"
+	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)

@@ -32,10 +32,12 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import org.threeten.bp.format.DateTimeFormatter
 import kotlin.math.roundToLong
 
-private const val LOG_TAG = "RecordsFragment"
-private const val MILLIS_OF_DAY = 24 * 60 * 60 * 1000L
-
 class RecordsFragment : Fragment() {
+	companion object {
+		private const val LOG_TAG = "RecordsFragment"
+		private const val MILLIS_OF_DAY = 24 * 60 * 60 * 1000L
+	}
+
 	private enum class Status { Invalid, Pending, Conflict, Uploaded }
 	private data class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
 
@@ -93,7 +95,7 @@ class RecordsFragment : Fragment() {
 			val gestureDetector = GestureDetectorCompat(context!!, object : GestureDetector.SimpleOnGestureListener() {
 				override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
 					context!!.startActivity(Intent(context, ShowRecordActivity::class.java).apply {
-						putExtra(EXTRA_RECORD, StampedLocation.listToJson(locations))
+						putExtra(ShowRecordActivity.EXTRA_RECORD, StampedLocation.listToJson(locations))
 					})
 					return true
 				}
