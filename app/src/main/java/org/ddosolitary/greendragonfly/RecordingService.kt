@@ -199,9 +199,11 @@ class RecordingService : Service() {
 				}
 			} else {
 				if (route.size >= 2) {
+					val recordEntry = withContext(Dispatchers.Default) {
+						RecordEntry.encryptRecord(Record(route, false))
+					}
 					withContext(Dispatchers.IO) {
-						Utils.getRecordDao(this@RecordingService)
-							.addRecord(RecordEntry.fromLocations(route))
+						Utils.getRecordDao(this@RecordingService).addRecord(recordEntry)
 					}
 				}
 				ServiceCompat.stopForeground(

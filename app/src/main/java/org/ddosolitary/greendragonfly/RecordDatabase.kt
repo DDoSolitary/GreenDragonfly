@@ -12,42 +12,21 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.spec.GCMParameterSpec
 
-private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
-private const val ENCRYPTION_KEY_ALIAS = "record-encryption-key"
-private const val ENCRYPTION_CIPHER = "AES/GCM/NoPadding"
-private const val ENCRYPTION_IV_LEN = 12
-private const val ENCRYPTION_TAG_LEN = 128
-private const val LOG_TAG = "RecordEntry"
-
 @Entity(tableName = "records")
 class RecordEntry(
+	@PrimaryKey(autoGenerate = true) val id: Int,
 	@ColumnInfo(name = "encryptedRecord") val encryptedRecord: ByteArray,
 	@ColumnInfo(name = "iv") val iv: ByteArray,
-	@ColumnInfo(name = "isUploaded") var isUploaded: Boolean
+	@ColumnInfo(name = "isUploaded") val isUploaded: Boolean
 ) {
-	@PrimaryKey(autoGenerate = true)
-	var id: Int = 0
-	@Ignore
-	val locations: List<StampedLocation>?
-
-	init {
-		var result: List<StampedLocation>? = null
-		try {
-			val param = GCMParameterSpec(ENCRYPTION_TAG_LEN, iv)
-			val data = Cipher.getInstance(ENCRYPTION_CIPHER).run {
-				init(Cipher.DECRYPT_MODE, getKey(), param)
-				doFinal(encryptedRecord)
-			}
-			result = StampedLocation.jsonToList(String(data))
-		} catch (e: Exception) {
-			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			Bugsnag.notify(e)
-		} finally {
-			locations = result
-		}
-	}
-
 	companion object {
+		const val KEYSTORE_PROVIDER = "AndroidKeyStore"
+		const val ENCRYPTION_KEY_ALIAS = "record-encryption-key"
+		const val ENCRYPTION_CIPHER = "AES/GCM/NoPadding"
+		const val ENCRYPTION_IV_LEN = 12
+		const val ENCRYPTION_TAG_LEN = 128
+		const val LOG_TAG = "RecordEntry"
+
 		private fun genKey(): Key {
 			val props = KeyGenParameterSpec.Builder(
 				ENCRYPTION_KEY_ALIAS,
@@ -73,15 +52,36 @@ class RecordEntry(
 			}
 		}
 
-		fun fromLocations(locations: List<StampedLocation>): RecordEntry {
+		fun encryptRecord(record: Record): RecordEntry {
 			val iv = ByteArray(ENCRYPTION_IV_LEN)
 			SecureRandom().nextBytes(iv)
 			val param = GCMParameterSpec(ENCRYPTION_TAG_LEN, iv)
-			return RecordEntry(Cipher.getInstance(ENCRYPTION_CIPHER).run {
-				init(Cipher.ENCRYPT_MODE, getKey(), param)
-				doFinal(StampedLocation.listToJson(locations).encodeToByteArray())
-			}, iv, false)
+			return RecordEntry(
+				record.id,
+				Cipher.getInstance(ENCRYPTION_CIPHER).run {
+					init(Cipher.ENCRYPT_MODE, getKey(), param)
+					doFinal(StampedLocation.listToJson(record.locations).encodeToByteArray())
+				},
+				iv,
+				record.isUploaded,
+			)
 		}
+	}
+
+	fun decryptRecord(): Record? {
+		var result: List<StampedLocation>? = null
+		try {
+			val param = GCMParameterSpec(ENCRYPTION_TAG_LEN, iv)
+			val data = Cipher.getInstance(ENCRYPTION_CIPHER).run {
+				init(Cipher.DECRYPT_MODE, getKey(), param)
+				doFinal(encryptedRecord)
+			}
+			result = StampedLocation.jsonToList(String(data))
+		} catch (e: Exception) {
+			Log.e(LOG_TAG, Log.getStackTraceString(e))
+			Bugsnag.notify(e)
+		}
+		return if (result == null) null else Record(id, result, isUploaded)
 	}
 }
 
@@ -96,14 +96,17 @@ interface RecordDao {
 	@Update
 	fun updateRecord(record: RecordEntry)
 
-	@Delete
-	fun deleteRecord(record: RecordEntry)
+	@Query("DELETE FROM records WHERE id = :id")
+	fun deleteRecordById(id: Int)
 
 	@Query("SELECT COUNT(id) FROM records")
 	fun getRecordCount(): Int
 
 	@Query("SELECT * FROM records ORDER BY id DESC LIMIT 1")
 	fun getLastRecord(): RecordEntry
+
+	@Query("SELECT * FROM records WHERE id = :id")
+	fun getRecordById(id: Int): RecordEntry
 }
 
 @Database(entities = [RecordEntry::class], exportSchema = false, version = 1)
