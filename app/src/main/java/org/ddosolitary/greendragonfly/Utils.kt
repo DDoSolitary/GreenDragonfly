@@ -52,7 +52,9 @@ class Utils {
 		fun getRecordDao(context: Context): RecordDao {
 			if (databaseSingleton == null) {
 				databaseSingleton =
-					Room.databaseBuilder(context, RecordDatabase::class.java, "records").build()
+					Room.databaseBuilder(context, RecordDatabase::class.java, "records")
+						.addMigrations(RecordDatabase.MIGRATION_1_2)
+						.build()
 			}
 			return databaseSingleton!!.recordDao()
 		}

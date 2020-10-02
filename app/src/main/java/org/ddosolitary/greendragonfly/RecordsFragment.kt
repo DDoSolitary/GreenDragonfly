@@ -282,7 +282,7 @@ class RecordsFragment : Fragment() {
 		// Assume the only possible change is appending a new item.
 		if (activity == null) return
 		vm.viewModelScope.launch(Dispatchers.Main) {
-			val recordDao = Utils.getRecordDao(context!!)
+			val recordDao = withContext(Dispatchers.Default) { Utils.getRecordDao(context!!) }
 			val newSize = withContext(Dispatchers.IO) { recordDao.getRecordCount() }
 			if (newSize == vm.records.size) return@launch
 			check(newSize == vm.records.size + 1)

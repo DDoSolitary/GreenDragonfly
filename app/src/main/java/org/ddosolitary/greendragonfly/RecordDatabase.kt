@@ -1,9 +1,13 @@
 package org.ddosolitary.greendragonfly
 
+import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Log
 import androidx.room.*
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.bugsnag.android.Bugsnag
 import java.security.Key
 import java.security.KeyStore
@@ -60,6 +64,7 @@ class RecordEntry(
 				record.id,
 				Cipher.getInstance(ENCRYPTION_CIPHER).run {
 					init(Cipher.ENCRYPT_MODE, getKey(), param)
+					updateAAD(byteArrayOf(if (record.isUploaded) 1 else 0))
 					doFinal(StampedLocation.listToJson(record.locations).encodeToByteArray())
 				},
 				iv,
@@ -68,12 +73,15 @@ class RecordEntry(
 		}
 	}
 
-	fun decryptRecord(): Record? {
+	fun decryptRecord(shouldVerify: Boolean = true): Record? {
 		var result: List<StampedLocation>? = null
 		try {
 			val param = GCMParameterSpec(ENCRYPTION_TAG_LEN, iv)
 			val data = Cipher.getInstance(ENCRYPTION_CIPHER).run {
 				init(Cipher.DECRYPT_MODE, getKey(), param)
+				if (shouldVerify) {
+					updateAAD(byteArrayOf(if (isUploaded) 1 else 0))
+				}
 				doFinal(encryptedRecord)
 			}
 			result = StampedLocation.jsonToList(String(data))
@@ -109,7 +117,41 @@ interface RecordDao {
 	fun getRecordById(id: Int): RecordEntry
 }
 
-@Database(entities = [RecordEntry::class], exportSchema = false, version = 1)
+@Database(entities = [RecordEntry::class], version = 2)
 abstract class RecordDatabase : RoomDatabase() {
+	companion object {
+		val MIGRATION_1_2 = object : Migration(1, 2) {
+			override fun migrate(database: SupportSQLiteDatabase) {
+				database.query("SELECT * FROM records").use {
+					val idColumn = it.getColumnIndex("id")
+					val encryptedRecordColumn = it.getColumnIndex("encryptedRecord")
+					val ivColumn = it.getColumnIndex("iv")
+					val isUploadedColumn = it.getColumnIndex("isUploaded")
+					while (it.moveToNext()) {
+						val record = RecordEntry(
+							it.getInt(idColumn),
+							it.getBlob(encryptedRecordColumn),
+							it.getBlob(ivColumn),
+							it.getInt(isUploadedColumn) != 0,
+						).decryptRecord(false)
+						if (record != null) {
+							val recordEntry = RecordEntry.encryptRecord(record)
+							database.update(
+								"records",
+								SQLiteDatabase.CONFLICT_NONE,
+								ContentValues().apply {
+									put("encryptedRecord", recordEntry.encryptedRecord)
+									put("iv", recordEntry.iv)
+								},
+								"id = ?",
+								arrayOf(recordEntry.id),
+							)
+						}
+					}
+				}
+			}
+		}
+	}
+
 	abstract fun recordDao(): RecordDao
 }
