@@ -108,6 +108,7 @@ class Utils {
 					val margin = context.resources.getDimensionPixelSize(R.dimen.margin_medium)
 					leftMargin = margin
 					rightMargin = margin
+					topMargin = margin
 				}
 				if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK) &&
 					resources.configuration.isNightModeActive) {
