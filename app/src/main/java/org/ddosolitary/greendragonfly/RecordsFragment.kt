@@ -29,7 +29,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
-import org.threeten.bp.format.DateTimeFormatter
+import java.time.format.DateTimeFormatter
 import kotlin.math.roundToLong
 
 class RecordsFragment : Fragment() {

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
 import android.text.SpannableString
@@ -34,8 +33,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.*
-import org.threeten.bp.LocalDate
-import org.threeten.bp.format.DateTimeFormatter
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity() {
 	companion object {
