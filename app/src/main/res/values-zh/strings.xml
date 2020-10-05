@@ -2,8 +2,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 	<string name="about">关于此应用</string>
 	<string name="admission_year">入学年份</string>
-	<string name="allow_change_date">允许修改记录日期</string>
 	<string name="allow_location_mocking">允许模拟位置信息</string>
+	<string name="allow_record_editing">允许编辑记录</string>
 	<string name="app_name">绿蜻蜓</string>
 	<string name="back">返回</string>
 	<string name="bind">绑定</string>
@@ -15,6 +15,8 @@
 	<string name="debug_options">调试选项</string>
 	<string name="delete">删除</string>
 	<string name="distance_template"><xliff:g>%1$.2f</xliff:g> m</string>
+	<string name="edit">编辑</string>
+	<string name="edit_record">编辑记录</string>
 	<string name="enable_location_logging">在日志中写入位置信息</string>
 	<string name="error">错误</string>
 	<string name="error_bind">绑定账号时遇到错误</string>
@@ -32,6 +34,7 @@
 	<string name="update_available_message"><xliff:g>%1$s</xliff:g> 已经发布。请更新至最新版本。</string>
 	<string name="update_available_title">版本更新</string>
 	<string name="next">下一步</string>
+	<string name="ok">确认</string>
 	<string name="password">密码</string>
 	<string name="query_count">查询已上传次数</string>
 	<string name="query_count_message">你已经上传了<xliff:g>%1$d</xliff:g>次锻炼记录</string>
@@ -48,6 +51,8 @@
 	<string name="select_school">选择学校</string>
 	<string name="speed_range">速度范围要求（m/s）</string>
 	<string name="speed_template"><xliff:g>%1$.2f</xliff:g> m/s</string>
+	<string name="start_date">开始日期</string>
+	<string name="start_time">开始时间</string>
 	<string name="status_conflict">已达到当日最大次数</string>
 	<string name="status_invalid">未达标</string>
 	<string name="status_pending">待上传</string>
@@ -55,6 +60,7 @@
 	<string name="student_id">学号</string>
 	<string name="upload">上传</string>
 	<string name="upload_result">上传结果</string>
+	<string name="uploaded">已上传</string>
 	<string name="user">用户信息</string>
 	<string name="version_template">版本：%1$s</string>
 	<string name="waiting_location">正在获取位置信息</string>

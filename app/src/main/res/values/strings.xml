@@ -2,8 +2,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 	<string name="about">About</string>
 	<string name="admission_year">Admission Year</string>
-	<string name="allow_change_date">Allow change date of the records.</string>
 	<string name="allow_location_mocking">Allow location mocking.</string>
+	<string name="allow_record_editing">Allow record editing.</string>
 	<string name="app_name">Green Dragonfly</string>
 	<string name="average" translatable="false">AVG</string>
 	<string name="back">Back</string>
@@ -16,6 +16,8 @@
 	<string name="debug_options">Debug Options</string>
 	<string name="delete">Delete</string>
 	<string name="distance_template"><xliff:g>%1$.2f</xliff:g> m</string>
+	<string name="edit">Edit</string>
+	<string name="edit_record">Edit Record</string>
 	<string name="enable_location_logging">Enable location logging.</string>
 	<string name="error">Error</string>
 	<string name="error_bind">Error occurred when binding to the account.</string>
@@ -34,6 +36,7 @@
 	<string name="update_available_title">Update Available</string>
 	<string name="next">Next</string>
 	<string name="now" translatable="false">NOW</string>
+	<string name="ok">OK</string>
 	<string name="password">Password</string>
 	<string name="query_count">Query count</string>
 	<string name="query_count_message">You have uploaded <xliff:g>%1$d</xliff:g> records.</string>
@@ -50,12 +53,15 @@
 	<string name="select_school">Select school</string>
 	<string name="speed_range">Speed Range (m/s)</string>
 	<string name="speed_template"><xliff:g>%1$.2f</xliff:g> m/s</string>
+	<string name="start_date">Start date</string>
+	<string name="start_time">Start time</string>
 	<string name="status_conflict">Max times per day reached</string>
 	<string name="status_invalid">Requirements not met</string>
 	<string name="status_pending">Not uploaded</string>
 	<string name="status_uploaded">Uploaded</string>
 	<string name="student_id">Student ID</string>
 	<string name="upload">Upload</string>
+	<string name="uploaded">Uploaded</string>
 	<string name="upload_result">Upload Result</string>
 	<string name="user">User</string>
 	<string name="version_template">Version: %1$s</string>

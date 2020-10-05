@@ -42,6 +42,11 @@
 		<activity
 			android:name=".ShowRecordActivity"
 			android:theme="@style/AppTheme" />
+		<activity
+			android:name=".RecordEditorActivity"
+			android:label="@string/edit_record"
+			android:theme="@style/AppTheme.Dialog"
+			android:excludeFromRecents="true" />
 		<service
 			android:name="com.baidu.location.f"
 			android:enabled="true"

@@ -8,7 +8,7 @@
 	<string name="api_path_upload" translatable="false">%1$sApi/webserver/uploadRunData</string>
 	<string name="api_query_template" translatable="false">{\'studentno\':\'%1$s\',\'uid\':\'%2$s\'}</string>
 	<string name="api_upload_template" translatable="false">{\'begintime\':\'%1$d\',\'endtime\':\'%2$d\',\'uid\':\'%3$s\',\'schoolno\':\'%4$s\',\'distance\':\'%5$g\',\'speed\':\'%6$g\',\'studentno\':\'%7$s\',\'atttype\':\'%8$s\',\'eventno\':\'%9$s\',\'location\':\'%10$s\',\'usetime\':\'%11$d\'}</string>
-	<string name="pref_key_allow_change_date" translatable="false">KEY_ALLOW_CHANGE_DATE</string>
+	<string name="pref_key_allow_record_editing" translatable="false">KEY_ALLOW_RECORD_EDITING</string>
 	<string name="pref_key_allow_mocking" translatable="false">KEY_ALLOW_MOCKING</string>
 	<string name="pref_key_is_first_run" translatable="false">KEY_IS_FIRST_RUN</string>
 	<string name="pref_key_incomplete_record" translatable="false">KEY_INCOMPLETE_RECORD</string>

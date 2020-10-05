@@ -1,6 +1,7 @@
 package org.ddosolitary.greendragonfly
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -34,8 +35,8 @@ import kotlin.math.roundToLong
 
 class RecordsFragment : Fragment() {
 	companion object {
+		private const val REQUEST_EDIT_RECORD = 0
 		private const val LOG_TAG = "RecordsFragment"
-		private const val MILLIS_OF_DAY = 24 * 60 * 60 * 1000L
 	}
 
 	private enum class Status { Invalid, Pending, Conflict, Uploaded }
@@ -78,37 +79,22 @@ class RecordsFragment : Fragment() {
 			}
 			val gestureDetector = GestureDetectorCompat(context!!, object : GestureDetector.SimpleOnGestureListener() {
 				override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-					context!!.startActivity(Intent(context, ShowRecordActivity::class.java).apply {
-						putExtra(ShowRecordActivity.EXTRA_RECORD_ID, record.id)
-					})
+					if (!isUploading) {
+						context!!.startActivity(Intent(context, ShowRecordActivity::class.java).apply {
+							putExtra(ShowRecordActivity.EXTRA_RECORD_ID, record.id)
+						})
+					}
 					return true
 				}
 
-				override fun onDoubleTap(e: MotionEvent?): Boolean {
-					return updateTimeStamps(-MILLIS_OF_DAY)
-				}
-
 				override fun onLongPress(e: MotionEvent?) {
-					updateTimeStamps(MILLIS_OF_DAY)
-				}
-
-				private fun updateTimeStamps(offset: Long): Boolean {
 					val debugPref = PreferenceManager.getDefaultSharedPreferences(context!!)
-					val allowChange = debugPref.getBoolean(getString(R.string.pref_key_allow_change_date), false)
+					val allowChange = debugPref.getBoolean(getString(R.string.pref_key_allow_record_editing), false)
 					if (!isUploading && allowChange) {
-						record.locations = record.locations.map { it.copy(timeStamp = it.timeStamp + offset) }
-						vm.viewModelScope.launch(Dispatchers.Main) {
-							val recordEntry = withContext(Dispatchers.Default) {
-								RecordEntry.encryptRecord(record)
-							}
-							withContext(Dispatchers.IO) {
-								Utils.getRecordDao(context!!).updateRecord(recordEntry)
-							}
-							notifyItemChanged(holder.adapterPosition)
-						}
-						return true
+						startActivityForResult(Intent(context, RecordEditorActivity::class.java).apply {
+							putExtra(RecordEditorActivity.EXTRA_RECORD_ID, record.id)
+						}, REQUEST_EDIT_RECORD)
 					}
-					return false
 				}
 			})
 			holder.view.apply {
@@ -274,6 +260,30 @@ class RecordsFragment : Fragment() {
 				addItemDecoration(
 					DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
 				)
+			}
+		}
+	}
+
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+		super.onActivityResult(requestCode, resultCode, data)
+		when (requestCode) {
+			REQUEST_EDIT_RECORD -> {
+				if (resultCode == Activity.RESULT_OK) {
+					val recordId = data!!.getIntExtra(RecordEditorActivity.EXTRA_RECORD_ID, -1)
+					vm.viewModelScope.launch(Dispatchers.Main) {
+						val position = vm.records.indexOfFirst { it.id == recordId }
+						if (position == -1) return@launch
+						val recordEntry = withContext(Dispatchers.Default) {
+							Utils.getRecordDao(context!!).getRecordById(recordId)
+						}
+						val record = withContext(Dispatchers.Default) {
+							recordEntry.decryptRecord()
+						} ?: return@launch
+						vm.records[position] = record
+						view!!.findViewById<RecyclerView>(R.id.recycler_records)
+							.adapter!!.notifyItemChanged(position)
+					}
+				}
 			}
 		}
 	}

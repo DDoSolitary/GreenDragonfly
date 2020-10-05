@@ -7,6 +7,6 @@
 		app:key="@string/pref_key_log_location"
 		app:title="@string/enable_location_logging" />
 	<SwitchPreferenceCompat
-		app:key="@string/pref_key_allow_change_date"
-		app:title="@string/allow_change_date" />
+		app:key="@string/pref_key_allow_record_editing"
+		app:title="@string/allow_record_editing" />
 </androidx.preference.PreferenceScreen>
