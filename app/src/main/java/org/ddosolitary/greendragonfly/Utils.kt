@@ -1,6 +1,7 @@
 package org.ddosolitary.greendragonfly
 
 import android.content.Context
+import android.content.res.Configuration
 import android.util.TypedValue
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -110,9 +111,11 @@ class Utils {
 					rightMargin = margin
 					topMargin = margin
 				}
-				if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK) &&
-					resources.configuration.isNightModeActive) {
-					WebSettingsCompat.setForceDark(settings, WebSettingsCompat.FORCE_DARK_ON)
+				if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
+					val nightModeFlag = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+					if (nightModeFlag == Configuration.UI_MODE_NIGHT_YES) {
+						WebSettingsCompat.setForceDark(settings, WebSettingsCompat.FORCE_DARK_ON)
+					}
 				}
 				loadUrl("file:///android_asset/about.html")
 			}
