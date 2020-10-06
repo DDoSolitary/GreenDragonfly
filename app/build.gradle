@@ -23,6 +23,7 @@ android {
 		}
 	}
 	compileOptions {
+		coreLibraryDesugaringEnabled true
 		sourceCompatibility = 1.8
 		targetCompatibility = 1.8
 	}
@@ -39,6 +40,8 @@ android {
 }
 
 dependencies {
+	coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.10'
+
 	implementation files('libs/BaiduLBS_AndroidSDK_Lib_GP.aar')
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 	implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0-RC2'
