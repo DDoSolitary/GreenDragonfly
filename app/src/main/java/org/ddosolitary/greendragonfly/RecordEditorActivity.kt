@@ -82,7 +82,7 @@ class RecordEditorActivity : AppCompatActivity() {
 	}
 
 	fun onTimeEditClicked(@Suppress("UNUSED_PARAMETER") view: View) {
-		val dialog = MaterialTimePicker.Builder()
+		MaterialTimePicker.Builder()
 			.setTitleText(R.string.start_time)
 			.setTimeFormat(TimeFormat.CLOCK_24H)
 			.setHour(vm.startHour)
