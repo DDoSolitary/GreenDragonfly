@@ -241,7 +241,7 @@ class RecordsFragment : Fragment() {
 
 	override fun onCreateView(
 		inflater: LayoutInflater, container: ViewGroup?,
-		savedInstanceState: Bundle?
+		savedInstanceState: Bundle?,
 	): View? {
 		return inflater.inflate(R.layout.fragment_records, container, false)
 	}
@@ -270,28 +270,30 @@ class RecordsFragment : Fragment() {
 		super.onActivityResult(requestCode, resultCode, data)
 		when (requestCode) {
 			REQUEST_EDIT_RECORD -> {
-				if (resultCode == Activity.RESULT_OK) {
-					val recordId = data!!.getIntExtra(RecordEditorFragment.EXTRA_RECORD_ID, -1)
-					vm.viewModelScope.launch(Dispatchers.Main) {
-						val position = vm.records.indexOfFirst { it.id == recordId }
-						if (position == -1) return@launch
-						val recordEntry = withContext(Dispatchers.Default) {
-							Utils.getRecordDao(requireContext()).getRecordById(recordId)
+				when (resultCode) {
+					RecordEditorFragment.RESULT_RECORD_ADDED -> updateForAppending()
+					RecordEditorFragment.RESULT_RECORD_UPDATED -> {
+						val recordId = data!!.getIntExtra(RecordEditorFragment.EXTRA_RECORD_ID, -1)
+						vm.viewModelScope.launch(Dispatchers.Main) {
+							val position = vm.records.indexOfFirst { it.id == recordId }
+							if (position == -1) return@launch
+							val recordEntry = withContext(Dispatchers.Default) {
+								Utils.getRecordDao(requireContext()).getRecordById(recordId)
+							}
+							val record = withContext(Dispatchers.Default) {
+								recordEntry.decryptRecord()
+							} ?: return@launch
+							vm.records[position] = record
+							requireView().findViewById<RecyclerView>(R.id.recycler_records)
+								.adapter!!.notifyItemChanged(position)
 						}
-						val record = withContext(Dispatchers.Default) {
-							recordEntry.decryptRecord()
-						} ?: return@launch
-						vm.records[position] = record
-						requireView().findViewById<RecyclerView>(R.id.recycler_records)
-							.adapter!!.notifyItemChanged(position)
 					}
 				}
 			}
 		}
 	}
 
-	fun updateUI() {
-		// Assume the only possible change is appending a new item.
+	fun updateForAppending() {
 		if (activity == null) return
 		vm.viewModelScope.launch(Dispatchers.Main) {
 			val recordDao = withContext(Dispatchers.Default) { Utils.getRecordDao(context!!) }
@@ -299,7 +301,7 @@ class RecordsFragment : Fragment() {
 			if (newSize == vm.records.size) return@launch
 			check(newSize == vm.records.size + 1)
 			val recordEntry = withContext(Dispatchers.IO) { recordDao.getLastRecord() }
-			val record = withContext(Dispatchers.Default) {	recordEntry.decryptRecord() }
+			val record = withContext(Dispatchers.Default) { recordEntry.decryptRecord() }
 			// TODO: Warn about decryption failure.
 			if (record != null) {
 				vm.records.add(record)

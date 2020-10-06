@@ -13,6 +13,7 @@
 	<string name="class_id">Class</string>
 	<string name="close">Close</string>
 	<string name="confirm">Confirm</string>
+	<string name="copy_record">Copy Record</string>
 	<string name="debug_options">Debug Options</string>
 	<string name="delete">Delete</string>
 	<string name="distance_template"><xliff:g>%1$.2f</xliff:g> m</string>

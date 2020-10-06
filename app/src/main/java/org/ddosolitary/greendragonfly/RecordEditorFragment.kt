@@ -6,6 +6,7 @@ import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageButton
 import android.widget.TextView
@@ -24,11 +25,14 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlin.random.Random
 
 class RecordEditorFragment : DialogFragment() {
 	companion object {
 		const val ARGUMENT_RECORD_ID = "org.ddosolitary.greendragonfly.argument.RECORD_ID"
 		const val EXTRA_RECORD_ID = "org.ddosolitary.greendragonfly.extra.RECORD_ID"
+		const val RESULT_RECORD_ADDED = 0
+		const val RESULT_RECORD_UPDATED = 1
 	}
 
 	class RecordEditorViewModel : ViewModel() {
@@ -47,10 +51,7 @@ class RecordEditorFragment : DialogFragment() {
 			.setTitle(R.string.edit_record)
 			.setView(createView())
 			.setPositiveButton(R.string.ok, null)
-			.setNegativeButton(R.string.cancel) { _, _ ->
-				targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, null)
-				dismiss()
-			}
+			.setNegativeButton(R.string.cancel) { _, _ -> dismiss() }
 			.create()
 		dialog.setOnShowListener {
 			dialog.getButton(AlertDialog.BUTTON_POSITIVE)
@@ -66,6 +67,7 @@ class RecordEditorFragment : DialogFragment() {
 			findViewById<CheckBox>(R.id.checkbox_uploaded).setOnCheckedChangeListener { _, isChecked ->
 				vm.record.isUploaded = isChecked
 			}
+			findViewById<Button>(R.id.button_copy_record).setOnClickListener { onCopyRecordClicked() }
 		}
 		val recordId = requireArguments().getInt(ARGUMENT_RECORD_ID)
 		vm.viewModelScope.launch(Dispatchers.Main) {
@@ -76,7 +78,6 @@ class RecordEditorFragment : DialogFragment() {
 				recordEntry.decryptRecord()
 			}
 			if (record == null) {
-				targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, null)
 				dismiss()
 				return@launch
 			}
@@ -126,6 +127,27 @@ class RecordEditorFragment : DialogFragment() {
 			}
 	}
 
+	private fun onCopyRecordClicked() {
+		val newLocations = vm.record.locations.map {
+			StampedLocation(
+				it.timeStamp + Random.nextLong(-500, 500),
+				(it.latitude * 1000000 + Random.nextInt(-10, 10)) / 1000000,
+				(it.longitude * 1000000 + Random.nextInt(-10, 10)) / 1000000,
+			)
+		}
+		val newRecord = Record(newLocations, false)
+		vm.viewModelScope.launch(Dispatchers.Main) {
+			val recordEntry = withContext(Dispatchers.Default) {
+				RecordEntry.encryptRecord(newRecord)
+			}
+			withContext(Dispatchers.IO) {
+				Utils.getRecordDao(requireContext()).addRecord(recordEntry)
+			}
+			targetFragment?.onActivityResult(targetRequestCode, RESULT_RECORD_ADDED, null)
+			dismiss()
+		}
+	}
+
 	private fun onOkClicked() {
 		val newDateTime = LocalDate.ofEpochDay(vm.startEpochDay)
 				.atTime(vm.startHour, vm.startMinute, vm.startSecond, vm.startNano)
@@ -141,7 +163,7 @@ class RecordEditorFragment : DialogFragment() {
 			withContext(Dispatchers.IO) {
 				Utils.getRecordDao(requireContext()).updateRecord(recordEntry)
 			}
-			targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, Intent().apply {
+			targetFragment?.onActivityResult(targetRequestCode, RESULT_RECORD_UPDATED, Intent().apply {
 				putExtra(EXTRA_RECORD_ID, vm.record.id)
 			})
 			dismiss()

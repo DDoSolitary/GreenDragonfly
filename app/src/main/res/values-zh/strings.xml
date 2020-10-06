@@ -12,6 +12,7 @@
 	<string name="class_id">班级</string>
 	<string name="close">关闭</string>
 	<string name="confirm">确认</string>
+	<string name="copy_record">复制记录</string>
 	<string name="debug_options">调试选项</string>
 	<string name="delete">删除</string>
 	<string name="distance_template"><xliff:g>%1$.2f</xliff:g> m</string>

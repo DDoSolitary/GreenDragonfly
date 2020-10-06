@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity() {
 		super.onNewIntent(intent)
 		when (intent?.action) {
 			ACTION_SHOW_RECORDS -> {
-				recordsFragment.updateUI()
+				recordsFragment.updateForAppending()
 				pager.setCurrentItem(1, true)
 			}
 			ACTION_UPDATE_USER -> {
