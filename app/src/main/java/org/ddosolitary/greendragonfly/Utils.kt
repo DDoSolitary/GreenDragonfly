@@ -7,6 +7,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.webkit.WebView
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.core.content.edit
@@ -34,10 +35,11 @@ import kotlin.math.roundToLong
 
 private const val MAP_LINE_WIDTH = 10
 fun Snackbar.useErrorStyle(context: Context): Snackbar {
-	view.apply {
+	view.run {
 		setTextColor(context.getColor(R.color.textLight))
 		setBackgroundColor(context.getColor(R.color.snackbarErrorBackground))
 		setActionTextColor(context.getColor(R.color.snackbarErrorButton))
+		findViewById<TextView>(com.google.android.material.R.id.snackbar_text) .maxLines = 4
 	}
 	return this
 }

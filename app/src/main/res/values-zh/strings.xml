@@ -19,9 +19,9 @@
 	<string name="edit_record">编辑记录</string>
 	<string name="enable_location_logging">在日志中写入位置信息</string>
 	<string name="error">错误</string>
-	<string name="error_bind">绑定账号时遇到错误</string>
-	<string name="error_get_schools">获取学校列表时遇到错误</string>
-	<string name="error_get_user">获取用户信息时遇到错误，请检查输入的信息是否正确</string>
+	<string name="error_bind">绑定账号时遇到错误：%1$s</string>
+	<string name="error_get_schools">获取学校列表时遇到错误：%1$s</string>
+	<string name="error_get_user">获取用户信息时遇到错误：%1$s</string>
 	<string name="error_query_count">查询已上传锻炼次数时遇到错误</string>
 	<string name="error_upload">上传记录时遇到错误</string>
 	<string name="female">女</string>

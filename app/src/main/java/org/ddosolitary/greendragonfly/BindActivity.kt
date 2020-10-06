@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
@@ -117,8 +116,8 @@ class BindActivity : AppCompatActivity() {
 		}
 	}
 
-	private fun getErrorSnackbar(@StringRes resId: Int): Snackbar {
-		return Snackbar.make(pager, resId, Snackbar.LENGTH_LONG)
+	private fun getErrorSnackbar(msg: String): Snackbar {
+		return Snackbar.make(pager, msg, Snackbar.LENGTH_LONG)
 			.useErrorStyle(this)
 	}
 
@@ -179,7 +178,7 @@ class BindActivity : AppCompatActivity() {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
 			Bugsnag.notify(e)
 			setProgressEnabled(false)
-			getErrorSnackbar(R.string.error_get_schools).apply {
+			getErrorSnackbar(getString(R.string.error_get_schools, e.localizedMessage)).apply {
 				duration = Snackbar.LENGTH_INDEFINITE
 				setAction(R.string.retry) { vm.viewModelScope.launch { fetchSchoolList() } }
 			}.show()
@@ -206,6 +205,10 @@ class BindActivity : AppCompatActivity() {
 				)
 				.headerForApi()
 				.awaitString()
+			if (!res.startsWith("姓名:")) {
+				getErrorSnackbar(getString(R.string.error_get_user, res)).show()
+				return@withContext
+			}
 			val fields = res.split(',').map { it.split(':')[1] }
 			vm.name = fields[0]
 			vm.genderStr = fields[1]
@@ -217,7 +220,7 @@ class BindActivity : AppCompatActivity() {
 		} catch (e: Exception) {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
 			Bugsnag.notify(e)
-			getErrorSnackbar(R.string.error_get_user).show()
+			getErrorSnackbar(getString(R.string.error_get_user, e.localizedMessage)).show()
 		} finally {
 			setIsWorking(false)
 		}
@@ -278,7 +281,7 @@ class BindActivity : AppCompatActivity() {
 		} catch (e: Exception) {
 			Log.e(LOG_TAG, Log.getStackTraceString(e))
 			Bugsnag.notify(e)
-			getErrorSnackbar(R.string.error_bind).show()
+			getErrorSnackbar(getString(R.string.error_bind, e.localizedMessage)).show()
 		} finally {
 			setIsWorking(false)
 		}
