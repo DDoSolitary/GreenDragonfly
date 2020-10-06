@@ -1,16 +1,20 @@
 package org.ddosolitary.greendragonfly
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.CheckBox
+import android.widget.ImageButton
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.Dispatchers
@@ -21,8 +25,9 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class RecordEditorActivity : AppCompatActivity() {
+class RecordEditorFragment : DialogFragment() {
 	companion object {
+		const val ARGUMENT_RECORD_ID = "org.ddosolitary.greendragonfly.argument.RECORD_ID"
 		const val EXTRA_RECORD_ID = "org.ddosolitary.greendragonfly.extra.RECORD_ID"
 	}
 
@@ -37,36 +42,59 @@ class RecordEditorActivity : AppCompatActivity() {
 
 	private val vm by lazy { ViewModelProvider(this)[RecordEditorViewModel::class.java] }
 
-	override fun onCreate(savedInstanceState: Bundle?) {
-		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_record_editor)
-		val recordId = intent.getIntExtra(EXTRA_RECORD_ID, -1)
+	override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+		val dialog = MaterialAlertDialogBuilder(requireContext())
+			.setTitle(R.string.edit_record)
+			.setView(createView())
+			.setPositiveButton(R.string.ok, null)
+			.setNegativeButton(R.string.cancel) { _, _ ->
+				targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, null)
+				dismiss()
+			}
+			.create()
+		dialog.setOnShowListener {
+			dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+				.setOnClickListener { onOkClicked() }
+		}
+		return dialog
+	}
+
+	private fun createView(): View {
+		val view = layoutInflater.inflate(R.layout.fragment_record_editor, null, false).apply {
+			findViewById<ImageButton>(R.id.button_edit_date).setOnClickListener { onEditDateClicked(this) }
+			findViewById<ImageButton>(R.id.button_edit_time).setOnClickListener { onEditTimeClicked(this) }
+			findViewById<CheckBox>(R.id.checkbox_uploaded).setOnCheckedChangeListener { _, isChecked ->
+				vm.record.isUploaded = isChecked
+			}
+		}
+		val recordId = requireArguments().getInt(ARGUMENT_RECORD_ID)
 		vm.viewModelScope.launch(Dispatchers.Main) {
 			val recordEntry = withContext(Dispatchers.IO) {
-				Utils.getRecordDao(this@RecordEditorActivity).getRecordById(recordId)
+				Utils.getRecordDao(requireContext()).getRecordById(recordId)
 			}
 			val record = withContext(Dispatchers.Default) {
 				recordEntry.decryptRecord()
 			}
 			if (record == null) {
-				setResult(Activity.RESULT_CANCELED)
-				finish()
+				targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, null)
+				dismiss()
 				return@launch
 			}
 			vm.record = record
-			findViewById<CheckBox>(R.id.checkbox_uploaded).isChecked = record.isUploaded
+			view.findViewById<CheckBox>(R.id.checkbox_uploaded).isChecked = record.isUploaded
 			val startDateTime = Utils.millisToTime(record.locations.first().timeStamp)
 			vm.startEpochDay = startDateTime.toLocalDate().toEpochDay()
 			vm.startHour = startDateTime.hour
 			vm.startMinute = startDateTime.minute
 			vm.startSecond = startDateTime.second
 			vm.startNano = startDateTime.nano
-			updateDateView()
-			updateTimeView()
+			updateDateView(view)
+			updateTimeView(view)
 		}
+		return view
 	}
 
-	fun onDateEditClicked(@Suppress("UNUSED_PARAMETER") view: View) {
+	private fun onEditDateClicked(rootView: View) {
 		MaterialDatePicker.Builder.datePicker()
 			.setTitleText(R.string.start_date)
 			.setTheme(R.style.ThemeOverlay_MaterialComponents_MaterialCalendar)
@@ -75,13 +103,13 @@ class RecordEditorActivity : AppCompatActivity() {
 			.run {
 				addOnPositiveButtonClickListener {
 					vm.startEpochDay = it / 86400000
-					updateDateView()
+					updateDateView(rootView)
 				}
-				show(supportFragmentManager, toString())
+				show(this@RecordEditorFragment.childFragmentManager, toString())
 			}
 	}
 
-	fun onTimeEditClicked(@Suppress("UNUSED_PARAMETER") view: View) {
+	private fun onEditTimeClicked(rootView: View) {
 		MaterialTimePicker.Builder()
 			.setTitleText(R.string.start_time)
 			.setTimeFormat(TimeFormat.CLOCK_24H)
@@ -92,22 +120,13 @@ class RecordEditorActivity : AppCompatActivity() {
 				addOnPositiveButtonClickListener {
 					vm.startHour = hour
 					vm.startMinute = minute
-					updateTimeView()
+					updateTimeView(rootView)
 				}
-				show(supportFragmentManager, toString())
+				show(this@RecordEditorFragment.childFragmentManager, toString())
 			}
 	}
 
-	fun onUploadedClicked(@Suppress("UNUSED_PARAMETER") view: View) {
-		vm.record.isUploaded = (view as CheckBox).isChecked
-	}
-
-	fun onCancelClicked(@Suppress("UNUSED_PARAMETER") view: View) {
-		setResult(Activity.RESULT_CANCELED)
-		finish()
-	}
-
-	fun onOkClicked(@Suppress("UNUSED_PARAMETER") view: View) {
+	private fun onOkClicked() {
 		val newDateTime = LocalDate.ofEpochDay(vm.startEpochDay)
 				.atTime(vm.startHour, vm.startMinute, vm.startSecond, vm.startNano)
 		val newMillis = newDateTime.toInstant(ZoneId.systemDefault().rules.getOffset(newDateTime)).toEpochMilli()
@@ -120,23 +139,23 @@ class RecordEditorActivity : AppCompatActivity() {
 				RecordEntry.encryptRecord(vm.record)
 			}
 			withContext(Dispatchers.IO) {
-				Utils.getRecordDao(this@RecordEditorActivity).updateRecord(recordEntry)
+				Utils.getRecordDao(requireContext()).updateRecord(recordEntry)
 			}
-			setResult(Activity.RESULT_OK, Intent().apply {
+			targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, Intent().apply {
 				putExtra(EXTRA_RECORD_ID, vm.record.id)
 			})
-			finish()
+			dismiss()
 		}
 	}
 
-	private fun updateDateView() {
-		findViewById<TextView>(R.id.text_start_date).text =
+	private fun updateDateView(rootView: View) {
+		rootView.findViewById<TextView>(R.id.text_start_date).text =
 			LocalDate.ofEpochDay(vm.startEpochDay)
 				.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 	}
 
-	private fun updateTimeView() {
-		findViewById<TextView>(R.id.text_start_time).text =
+	private fun updateTimeView(rootView: View) {
+		rootView.findViewById<TextView>(R.id.text_start_time).text =
 			LocalTime.of(vm.startHour, vm.startMinute, vm.startSecond, vm.startNano)
 				.format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"))
 	}

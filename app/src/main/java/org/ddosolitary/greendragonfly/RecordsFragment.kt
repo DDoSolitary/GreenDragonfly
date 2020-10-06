@@ -91,9 +91,11 @@ class RecordsFragment : Fragment() {
 					val debugPref = PreferenceManager.getDefaultSharedPreferences(context!!)
 					val allowChange = debugPref.getBoolean(getString(R.string.pref_key_allow_record_editing), false)
 					if (!isUploading && allowChange) {
-						startActivityForResult(Intent(context, RecordEditorActivity::class.java).apply {
-							putExtra(RecordEditorActivity.EXTRA_RECORD_ID, record.id)
-						}, REQUEST_EDIT_RECORD)
+						RecordEditorFragment().run {
+							setTargetFragment(this@RecordsFragment, REQUEST_EDIT_RECORD)
+							arguments = Bundle().apply { putInt(RecordEditorFragment.ARGUMENT_RECORD_ID, record.id) }
+							show(this@RecordsFragment.parentFragmentManager, toString())
+						}
 					}
 				}
 			})
@@ -269,7 +271,7 @@ class RecordsFragment : Fragment() {
 		when (requestCode) {
 			REQUEST_EDIT_RECORD -> {
 				if (resultCode == Activity.RESULT_OK) {
-					val recordId = data!!.getIntExtra(RecordEditorActivity.EXTRA_RECORD_ID, -1)
+					val recordId = data!!.getIntExtra(RecordEditorFragment.EXTRA_RECORD_ID, -1)
 					vm.viewModelScope.launch(Dispatchers.Main) {
 						val position = vm.records.indexOfFirst { it.id == recordId }
 						if (position == -1) return@launch
