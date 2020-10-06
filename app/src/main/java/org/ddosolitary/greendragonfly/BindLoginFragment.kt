@@ -37,7 +37,7 @@ class BindLoginFragment : Fragment() {
 		savedInstanceState?.getInt(STATE_SELECTED_ITEM, -1)?.let {
 			if (it != -1) vm.selectedSchool = it
 		}
-		view!!.run {
+		requireView().run {
 			vm.schools.run {
 				value?.let { updateSchoolList(it) }
 				observe(viewLifecycleOwner, { updateSchoolList(it) })
@@ -57,7 +57,7 @@ class BindLoginFragment : Fragment() {
 	}
 
 	private fun updateSchoolList(schools: List<BindAccountViewModel.ApiSchoolInfo>) {
-		view!!.findViewById<AutoCompleteTextView>(R.id.dropdown_schools).apply {
+		requireView().findViewById<AutoCompleteTextView>(R.id.dropdown_schools).apply {
 			setAdapter(
 				ArrayAdapter(
 					context,

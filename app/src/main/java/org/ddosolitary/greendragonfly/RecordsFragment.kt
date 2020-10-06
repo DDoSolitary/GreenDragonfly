@@ -77,10 +77,10 @@ class RecordsFragment : Fragment() {
 				}
 				if (cnt >= plan.maxTimesPerDay) Status.Conflict else Status.Pending
 			}
-			val gestureDetector = GestureDetectorCompat(context!!, object : GestureDetector.SimpleOnGestureListener() {
+			val gestureDetector = GestureDetectorCompat(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
 				override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
 					if (!isUploading) {
-						context!!.startActivity(Intent(context, ShowRecordActivity::class.java).apply {
+						requireContext().startActivity(Intent(context, ShowRecordActivity::class.java).apply {
 							putExtra(ShowRecordActivity.EXTRA_RECORD_ID, record.id)
 						})
 					}
@@ -88,7 +88,7 @@ class RecordsFragment : Fragment() {
 				}
 
 				override fun onLongPress(e: MotionEvent?) {
-					val debugPref = PreferenceManager.getDefaultSharedPreferences(context!!)
+					val debugPref = PreferenceManager.getDefaultSharedPreferences(requireContext())
 					val allowChange = debugPref.getBoolean(getString(R.string.pref_key_allow_record_editing), false)
 					if (!isUploading && allowChange) {
 						RecordEditorFragment().run {
@@ -182,7 +182,7 @@ class RecordsFragment : Fragment() {
 			withContext(Dispatchers.Main) {
 				setIsWorkingAndUpdate(true)
 				try {
-					val user = UserInfo.getUser(context!!)!!
+					val user = UserInfo.getUser(requireContext())!!
 					val req = getString(
 						R.string.api_upload_template,
 						record.locations.first().timeStamp / 1000,
@@ -207,7 +207,7 @@ class RecordsFragment : Fragment() {
 					check(Utils.checkApiResponse(res))
 					val resMsg = Json.parseToJsonElement(res.jsonObject["m"]!!.jsonPrimitive.content)
 						.jsonObject["srvresp"]!!.jsonPrimitive.content
-					MaterialAlertDialogBuilder(context!!)
+					MaterialAlertDialogBuilder(requireContext())
 						.setTitle(R.string.upload_result)
 						.setMessage(resMsg)
 						.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
@@ -217,16 +217,16 @@ class RecordsFragment : Fragment() {
 						RecordEntry.encryptRecord(record)
 					}
 					withContext(Dispatchers.IO) {
-						Utils.getRecordDao(context!!).updateRecord(recordEntry)
+						Utils.getRecordDao(requireContext()).updateRecord(recordEntry)
 					}
 				} catch (e: Exception) {
 					Log.e(LOG_TAG, Log.getStackTraceString(e))
 					Bugsnag.notify(e)
 					Snackbar.make(
-						view!!.parent as ViewGroup,
+						requireView().parent as ViewGroup,
 						R.string.error_upload,
 						Snackbar.LENGTH_LONG
-					).useErrorStyle(context!!).show()
+					).useErrorStyle(requireContext()).show()
 				} finally {
 					setIsWorkingAndUpdate(false)
 				}
@@ -250,13 +250,13 @@ class RecordsFragment : Fragment() {
 		super.onActivityCreated(savedInstanceState)
 		vm.viewModelScope.launch(Dispatchers.Main) {
 			val recordEntries = withContext(Dispatchers.IO) {
-				Utils.getRecordDao(context!!).getRecords()
+				Utils.getRecordDao(requireContext()).getRecords()
 			}
 			// TODO: Warn about decryption failure.
 			vm.records = withContext(Dispatchers.Default) {
 				recordEntries.mapNotNull { it.decryptRecord() }.toMutableList()
 			}
-			view!!.findViewById<RecyclerView>(R.id.recycler_records).apply {
+			requireView().findViewById<RecyclerView>(R.id.recycler_records).apply {
 				layoutManager = LinearLayoutManager(context)
 				adapter = RecyclerAdapter()
 				addItemDecoration(
@@ -276,13 +276,13 @@ class RecordsFragment : Fragment() {
 						val position = vm.records.indexOfFirst { it.id == recordId }
 						if (position == -1) return@launch
 						val recordEntry = withContext(Dispatchers.Default) {
-							Utils.getRecordDao(context!!).getRecordById(recordId)
+							Utils.getRecordDao(requireContext()).getRecordById(recordId)
 						}
 						val record = withContext(Dispatchers.Default) {
 							recordEntry.decryptRecord()
 						} ?: return@launch
 						vm.records[position] = record
-						view!!.findViewById<RecyclerView>(R.id.recycler_records)
+						requireView().findViewById<RecyclerView>(R.id.recycler_records)
 							.adapter!!.notifyItemChanged(position)
 					}
 				}
@@ -303,7 +303,7 @@ class RecordsFragment : Fragment() {
 			// TODO: Warn about decryption failure.
 			if (record != null) {
 				vm.records.add(record)
-				view!!.findViewById<RecyclerView>(R.id.recycler_records)
+				requireView().findViewById<RecyclerView>(R.id.recycler_records)
 					.adapter!!.notifyItemInserted(newSize - 1)
 			}
 		}
