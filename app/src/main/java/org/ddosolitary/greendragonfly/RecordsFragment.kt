@@ -285,7 +285,7 @@ class RecordsFragment : Fragment() {
 							} ?: return@launch
 							vm.records[position] = record
 							requireView().findViewById<RecyclerView>(R.id.recycler_records)
-								.adapter!!.notifyItemChanged(position)
+								.adapter!!.notifyDataSetChanged()
 						}
 					}
 				}
