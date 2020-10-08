@@ -22,9 +22,9 @@
 	<string name="error">错误</string>
 	<string name="error_bind">绑定账号时遇到错误：%1$s</string>
 	<string name="error_get_schools">获取学校列表时遇到错误：%1$s</string>
-	<string name="error_get_user">获取用户信息时遇到错误：%1$s</string>
-	<string name="error_query_count">查询已上传锻炼次数时遇到错误</string>
-	<string name="error_upload">上传记录时遇到错误</string>
+	<string name="error_get_user">获取用户信息时遇到错误：%1$s。请确保你已连接到校园网。</string>
+	<string name="error_query_count">查询已上传锻炼次数时遇到错误：%1$s。请确保你已连接到校园网。</string>
+	<string name="error_upload">上传记录时遇到错误：%1$s。请确保你已连接到校园网。</string>
 	<string name="female">女</string>
 	<string name="gender">性别</string>
 	<string name="location_permission_denied">记录跑步情况需要定位服务，请打开此项权限</string>

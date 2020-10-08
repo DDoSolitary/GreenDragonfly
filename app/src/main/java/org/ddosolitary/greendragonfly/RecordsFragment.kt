@@ -224,7 +224,7 @@ class RecordsFragment : Fragment() {
 					Bugsnag.notify(e)
 					Snackbar.make(
 						requireView().parent as ViewGroup,
-						R.string.error_upload,
+						getString(R.string.error_upload, e.localizedMessage),
 						Snackbar.LENGTH_LONG
 					).useErrorStyle(requireContext()).show()
 				} finally {

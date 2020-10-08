@@ -22,10 +22,10 @@
 	<string name="enable_location_logging">Enable location logging.</string>
 	<string name="error">Error</string>
 	<string name="error_bind">Error occurred when binding to the account: %1$s</string>
-	<string name="error_get_schools">Error occurred when retrieving the school list: %1$s</string>
-	<string name="error_get_user">Error occurred when retrieving user information: %1$s</string>
-	<string name="error_query_count">Error occurred when querying uploaded record count.</string>
-	<string name="error_upload">Error occurred when trying to upload the record.</string>
+	<string name="error_get_schools">Error occurred when retrieving the school list: %1$s. Make sure you\'re connected to the campus network.</string>
+	<string name="error_get_user">Error occurred when retrieving user information: %1$s. Make sure you\'re connected to the campus network.</string>
+	<string name="error_query_count">Error occurred when querying uploaded record count: %1$1. Make sure you\'re connected to the campus network.</string>
+	<string name="error_upload">Error occurred when trying to upload the record: %1$s. Make sure you\'re connected to the campus network.</string>
 	<string name="female">Female</string>
 	<string name="gender">Gender</string>
 	<string name="location_permission_denied">Please allow access to location services which is required for recording your running.</string>

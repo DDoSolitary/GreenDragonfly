@@ -229,7 +229,7 @@ class MainActivity : AppCompatActivity() {
 			Bugsnag.notify(e)
 			Snackbar.make(
 				pager,
-				R.string.error_query_count,
+				getString(R.string.error_query_count, e.localizedMessage),
 				Snackbar.LENGTH_LONG
 			).useErrorStyle(this@MainActivity).show()
 		}
