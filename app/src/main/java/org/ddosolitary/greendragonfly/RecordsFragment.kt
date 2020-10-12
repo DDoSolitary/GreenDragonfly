@@ -222,11 +222,13 @@ class RecordsFragment : Fragment() {
 				} catch (e: Exception) {
 					Log.e(LOG_TAG, Log.getStackTraceString(e))
 					Bugsnag.notify(e)
-					Snackbar.make(
-						requireView().parent as ViewGroup,
-						getString(R.string.error_upload, e.localizedMessage),
-						Snackbar.LENGTH_LONG
-					).useErrorStyle(requireContext()).show()
+					view?.let {
+						Snackbar.make(
+							it.parent as ViewGroup,
+							getString(R.string.error_upload, e.localizedMessage),
+							Snackbar.LENGTH_LONG
+						).useErrorStyle(requireContext()).show()
+					}
 				} finally {
 					setIsWorkingAndUpdate(false)
 				}
