@@ -47,7 +47,10 @@ class RecordingService : Service() {
 	override fun onCreate() {
 		super.onCreate()
 		wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-			newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG).apply { acquire(WAKELOCK_TIMEOUT) }
+			newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG).apply {
+				acquire(WAKELOCK_TIMEOUT)
+				setReferenceCounted(false)
+			}
 		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			val channel = NotificationChannel(
