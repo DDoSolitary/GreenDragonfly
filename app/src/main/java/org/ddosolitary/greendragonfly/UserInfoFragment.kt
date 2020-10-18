@@ -42,7 +42,8 @@ class UserInfoFragment : Fragment() {
 					0 -> PropertyInfo(R.string.student_id, it.studentId)
 					1 -> PropertyInfo(R.string.name, it.name)
 					2 -> PropertyInfo(
-						R.string.gender, when (it.gender) {
+						R.string.gender,
+						when (it.gender) {
 							Gender.Male -> view.context.getString(R.string.male)
 							Gender.Female -> view.context.getString(R.string.female)
 						}
@@ -75,8 +76,8 @@ class UserInfoFragment : Fragment() {
 
 	override fun onCreateView(
 		inflater: LayoutInflater, container: ViewGroup?,
-		savedInstanceState: Bundle?
-	): View? {
+		savedInstanceState: Bundle?,
+	): View {
 		return (inflater.inflate(
 			R.layout.fragment_user_info,
 			container,

@@ -79,11 +79,13 @@
 		android:id="@+id/checkbox_uploaded"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:enabled="false"
 		android:text="@string/uploaded" />
 	<com.google.android.material.button.MaterialButton
 		android:id="@+id/button_copy_record"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:enabled="false"
 		android:text="@string/copy_record"
 		style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 </LinearLayout>

@@ -21,7 +21,7 @@ class RecordEntry(
 	@PrimaryKey(autoGenerate = true) val id: Int,
 	@ColumnInfo(name = "encryptedRecord") val encryptedRecord: ByteArray,
 	@ColumnInfo(name = "iv") val iv: ByteArray,
-	@ColumnInfo(name = "isUploaded") val isUploaded: Boolean
+	@ColumnInfo(name = "isUploaded") val isUploaded: Boolean,
 ) {
 	companion object {
 		const val KEYSTORE_PROVIDER = "AndroidKeyStore"
@@ -99,7 +99,7 @@ interface RecordDao {
 	fun getRecords(): List<RecordEntry>
 
 	@Insert
-	fun addRecord(record: RecordEntry)
+	fun addRecord(record: RecordEntry): Long
 
 	@Update
 	fun updateRecord(record: RecordEntry)

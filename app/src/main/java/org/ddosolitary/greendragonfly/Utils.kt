@@ -39,7 +39,7 @@ fun Snackbar.useErrorStyle(context: Context): Snackbar {
 		setTextColor(context.getColor(R.color.textLight))
 		setBackgroundColor(context.getColor(R.color.snackbarErrorBackground))
 		setActionTextColor(context.getColor(R.color.snackbarErrorButton))
-		findViewById<TextView>(com.google.android.material.R.id.snackbar_text) .maxLines = 4
+		findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 4
 	}
 	return this
 }

@@ -18,7 +18,7 @@ data class RunningPlan(
 	val minDistance: Double,
 	val minSpeed: Double,
 	val maxSpeed: Double,
-	val maxTimesPerDay: Int
+	val maxTimesPerDay: Int,
 )
 
 @Serializable
@@ -32,7 +32,7 @@ data class UserInfo(
 	val schoolId: String,
 	val schoolName: String,
 	val apiUrl: String,
-	val plan: RunningPlan?
+	val plan: RunningPlan?,
 ) {
 	companion object {
 		private var user: UserInfo? = null

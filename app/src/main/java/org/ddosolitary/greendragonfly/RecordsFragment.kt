@@ -1,7 +1,7 @@
 package org.ddosolitary.greendragonfly
 
 import android.annotation.SuppressLint
-import android.app.Activity
+import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +10,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
@@ -42,10 +43,8 @@ class RecordsFragment : Fragment() {
 	private enum class Status { Invalid, Pending, Conflict, Uploaded }
 	private data class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
 
-	private inner class RecyclerAdapter :
+	private inner class RecyclerAdapter(val records: MutableList<Record>) :
 		RecyclerView.Adapter<ViewHolder>() {
-
-		private var isUploading = false
 
 		override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 			return ViewHolder(
@@ -55,11 +54,11 @@ class RecordsFragment : Fragment() {
 			)
 		}
 
-		override fun getItemCount(): Int = vm.records.size
+		override fun getItemCount(): Int = records.size
 
 		@SuppressLint("ClickableViewAccessibility")
 		override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-			val record = vm.records[position]
+			val record = records[position]
 			val startTime = Utils.millisToTime(record.locations.first().timeStamp)
 			val speed = StampedLocation.getAverageSpeed(record.locations)
 			val distance = StampedLocation.getDistance(record.locations)
@@ -71,7 +70,7 @@ class RecordsFragment : Fragment() {
 			} else if (!speedInRange || !distanceInRange) {
 				Status.Invalid
 			} else {
-				val cnt = vm.records.count {
+				val cnt = records.count {
 					val targetDate = Utils.millisToTime(it.locations.first().timeStamp).toLocalDate()
 					return@count it.isUploaded && targetDate.isEqual(startTime.toLocalDate())
 				}
@@ -79,7 +78,7 @@ class RecordsFragment : Fragment() {
 			}
 			val gestureDetector = GestureDetectorCompat(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
 				override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-					if (!isUploading) {
+					if (vm.isUploading.value != true) {
 						requireContext().startActivity(Intent(context, ShowRecordActivity::class.java).apply {
 							putExtra(ShowRecordActivity.EXTRA_RECORD_ID, record.id)
 						})
@@ -90,7 +89,7 @@ class RecordsFragment : Fragment() {
 				override fun onLongPress(e: MotionEvent?) {
 					val debugPref = PreferenceManager.getDefaultSharedPreferences(requireContext())
 					val allowChange = debugPref.getBoolean(getString(R.string.pref_key_allow_record_editing), false)
-					if (!isUploading && allowChange) {
+					if (vm.isUploading.value != true && allowChange) {
 						RecordEditorFragment().run {
 							setTargetFragment(this@RecordsFragment, REQUEST_EDIT_RECORD)
 							arguments = Bundle().apply { putInt(RecordEditorFragment.ARGUMENT_RECORD_ID, record.id) }
@@ -130,24 +129,13 @@ class RecordsFragment : Fragment() {
 					when (status) {
 						Status.Conflict, Status.Invalid -> {
 							setText(R.string.delete)
-							setOnClickListener {
-								vm.viewModelScope.launch(Dispatchers.Main) {
-									withContext(Dispatchers.IO) {
-										Utils.getRecordDao(context).deleteRecordById(record.id)
-									}
-									val p = holder.adapterPosition
-									if (p in 0..vm.records.size) {
-										vm.records.removeAt(p)
-										notifyItemRemoved(p)
-									}
-								}
-							}
+							setOnClickListener { vm.deleteRecord(record.id) }
 							isEnabled = true
 						}
 						Status.Pending -> {
 							setText(R.string.upload)
 							setOnClickListener {
-								vm.viewModelScope.launch { uploadRecord(record) }
+								vm.viewModelScope.launch { vm.uploadRecord(record) }
 							}
 							isEnabled = true
 						}
@@ -156,7 +144,7 @@ class RecordsFragment : Fragment() {
 							isEnabled = false
 						}
 					}
-					if (isUploading) isEnabled = false
+					if (vm.isUploading.value == true) isEnabled = false
 				}
 			}
 		}
@@ -170,20 +158,68 @@ class RecordsFragment : Fragment() {
 				}
 			)
 		}
+	}
 
-		private fun setIsWorkingAndUpdate(isWorking: Boolean) {
-			view?.findViewById<MaterialProgressBar>(R.id.progress_upload)?.visibility =
-				if (isWorking) View.VISIBLE else View.INVISIBLE
-			isUploading = isWorking
-			notifyDataSetChanged()
+	class RecordsViewModel(app: Application) : AndroidViewModel(app) {
+		val records = MutableLiveData<MutableList<Record>>()
+		val addedRecord = SingleLiveEvent<Record>()
+		val updatedRecord = SingleLiveEvent<Record>()
+		val deletedRecordId = SingleLiveEvent<Int>()
+		val uploadResult = SingleLiveEvent<String>()
+		val uploadException = SingleLiveEvent<Exception>()
+		val isUploading = MutableLiveData<Boolean>()
+
+		init { loadRecordList() }
+
+		private fun loadRecordList() {
+			viewModelScope.launch(Dispatchers.Main) {
+				val recordEntries = withContext(Dispatchers.IO) {
+					Utils.getRecordDao(getApplication<MyApplication>().applicationContext).getRecords()
+				}
+				// TODO: Warn about decryption failure.
+				records.value = withContext(Dispatchers.Default) {
+					recordEntries.mapNotNull { it.decryptRecord() }.toMutableList()
+				}
+			}
 		}
 
-		private suspend fun uploadRecord(record: Record) =
-			withContext(Dispatchers.Main) {
-				setIsWorkingAndUpdate(true)
+		private suspend fun loadRecord(id: Int): Record? = withContext(Dispatchers.IO) {
+			val recordEntry = Utils.getRecordDao(getApplication<MyApplication>().applicationContext)
+				.getRecordById(id)
+			withContext(Dispatchers.Default) {
+				recordEntry.decryptRecord()
+			}
+		}
+
+		fun loadAddedRecord(id: Int) {
+			viewModelScope.launch(Dispatchers.Main) {
+				addedRecord.setValue(loadRecord(id) ?: return@launch)
+			}
+		}
+
+		fun loadUpdatedRecord(id: Int) {
+			viewModelScope.launch(Dispatchers.Main) {
+				updatedRecord.setValue(loadRecord(id) ?: return@launch)
+			}
+		}
+
+		fun deleteRecord(id: Int) {
+			viewModelScope.launch(Dispatchers.Main) {
+				withContext(Dispatchers.IO) {
+					Utils.getRecordDao(getApplication<MyApplication>().applicationContext)
+						.deleteRecordById(id)
+				}
+				deletedRecordId.setValue(id)
+			}
+		}
+
+		fun uploadRecord(record: Record) {
+			viewModelScope.launch(Dispatchers.Main) {
+				isUploading.value = true
+				val context = getApplication<MyApplication>().applicationContext
 				try {
-					val user = UserInfo.getUser(requireContext())!!
-					val req = getString(
+					val user = UserInfo.getUser(context)!!
+					val req = context.getString(
 						R.string.api_upload_template,
 						record.locations.first().timeStamp / 1000,
 						record.locations.last().timeStamp / 1000,
@@ -198,7 +234,7 @@ class RecordsFragment : Fragment() {
 						StampedLocation.getDuration(record.locations).roundToLong()
 					)
 					val res = Json.parseToJsonElement(
-						getString(R.string.api_path_upload, user.apiUrl)
+						context.getString(R.string.api_path_upload, user.apiUrl)
 							.httpPost()
 							.body(Utils.compressString(req))
 							.headerForApi()
@@ -207,39 +243,26 @@ class RecordsFragment : Fragment() {
 					check(Utils.checkApiResponse(res))
 					val resMsg = Json.parseToJsonElement(res.jsonObject["m"]!!.jsonPrimitive.content)
 						.jsonObject["srvresp"]!!.jsonPrimitive.content
-					MaterialAlertDialogBuilder(requireContext())
-						.setTitle(R.string.upload_result)
-						.setMessage(resMsg)
-						.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
-						.show()
+					uploadResult.setValue(resMsg)
 					record.isUploaded = true
 					val recordEntry = withContext(Dispatchers.Default) {
 						RecordEntry.encryptRecord(record)
 					}
 					withContext(Dispatchers.IO) {
-						Utils.getRecordDao(requireContext()).updateRecord(recordEntry)
+						Utils.getRecordDao(context).updateRecord(recordEntry)
 					}
 				} catch (e: Exception) {
 					Log.e(LOG_TAG, Log.getStackTraceString(e))
 					Bugsnag.notify(e)
-					view?.let {
-						Snackbar.make(
-							it.parent as ViewGroup,
-							getString(R.string.error_upload, e.localizedMessage),
-							Snackbar.LENGTH_LONG
-						).useErrorStyle(requireContext()).show()
-					}
+					uploadException.setValue(e)
 				} finally {
-					setIsWorkingAndUpdate(false)
+					isUploading.value = false
 				}
 			}
+		}
 	}
 
-	class RecordsViewModel : ViewModel() {
-		lateinit var records: MutableList<Record>
-	}
-
-	private val vm by lazy { ViewModelProvider(requireActivity())[RecordsViewModel::class.java] }
+	private val vm by lazy { ViewModelProvider(this)[RecordsViewModel::class.java] }
 
 	override fun onCreateView(
 		inflater: LayoutInflater, container: ViewGroup?,
@@ -250,20 +273,55 @@ class RecordsFragment : Fragment() {
 
 	override fun onActivityCreated(savedInstanceState: Bundle?) {
 		super.onActivityCreated(savedInstanceState)
-		vm.viewModelScope.launch(Dispatchers.Main) {
-			val recordEntries = withContext(Dispatchers.IO) {
-				Utils.getRecordDao(requireContext()).getRecords()
-			}
-			// TODO: Warn about decryption failure.
-			vm.records = withContext(Dispatchers.Default) {
-				recordEntries.mapNotNull { it.decryptRecord() }.toMutableList()
-			}
+		vm.records.observe(viewLifecycleOwner) { records ->
+			val adapter = RecyclerAdapter(records)
 			requireView().findViewById<RecyclerView>(R.id.recycler_records).apply {
 				layoutManager = LinearLayoutManager(context)
-				adapter = RecyclerAdapter()
+				this.adapter = adapter
 				addItemDecoration(
 					DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
 				)
+			}
+			vm.addedRecord.observe(viewLifecycleOwner) { record ->
+				if (records.none { it.id == record.id }) {
+					records.add(record)
+					adapter.notifyItemInserted(records.size - 1)
+					adapter.notifyItemRangeChanged(0, records.size - 1)
+				}
+			}
+			vm.updatedRecord.observe(viewLifecycleOwner) { record ->
+				val position = records.indexOfFirst { it.id == record.id }
+				if (position != -1) {
+					records[position] = record
+					adapter.notifyItemRangeChanged(0, records.size)
+				}
+			}
+			vm.deletedRecordId.observe(viewLifecycleOwner) { recordId ->
+				val position = records.indexOfFirst { it.id == recordId }
+				if (position != -1) {
+					records.removeAt(position)
+					adapter.notifyItemRemoved(position)
+					adapter.notifyItemRangeChanged(0, records.size)
+				}
+			}
+			vm.uploadResult.observe(viewLifecycleOwner) {
+				MaterialAlertDialogBuilder(requireContext())
+					.setTitle(R.string.upload_result)
+					.setMessage(it)
+					.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
+					.show()
+			}
+			vm.uploadException.observe(viewLifecycleOwner) {
+				Snackbar.make(
+					requireView().parent as ViewGroup,
+					getString(R.string.error_upload, it.localizedMessage),
+					Snackbar.LENGTH_LONG
+				).useErrorStyle(requireContext()).show()
+			}
+			vm.isUploading.observe(viewLifecycleOwner) {
+				requireView().findViewById<MaterialProgressBar>(R.id.progress_upload).visibility =
+					if (it) View.VISIBLE else View.INVISIBLE
+				adapter.notifyDataSetChanged()
 			}
 		}
 	}
@@ -272,44 +330,16 @@ class RecordsFragment : Fragment() {
 		super.onActivityResult(requestCode, resultCode, data)
 		when (requestCode) {
 			REQUEST_EDIT_RECORD -> {
+				val recordId = data!!.getIntExtra(RecordEditorFragment.EXTRA_RECORD_ID, -1)
 				when (resultCode) {
-					RecordEditorFragment.RESULT_RECORD_ADDED -> updateForAppending()
-					RecordEditorFragment.RESULT_RECORD_UPDATED -> {
-						val recordId = data!!.getIntExtra(RecordEditorFragment.EXTRA_RECORD_ID, -1)
-						vm.viewModelScope.launch(Dispatchers.Main) {
-							val position = vm.records.indexOfFirst { it.id == recordId }
-							if (position == -1) return@launch
-							val recordEntry = withContext(Dispatchers.Default) {
-								Utils.getRecordDao(requireContext()).getRecordById(recordId)
-							}
-							val record = withContext(Dispatchers.Default) {
-								recordEntry.decryptRecord()
-							} ?: return@launch
-							vm.records[position] = record
-							requireView().findViewById<RecyclerView>(R.id.recycler_records)
-								.adapter!!.notifyDataSetChanged()
-						}
-					}
+					RecordEditorFragment.RESULT_RECORD_ADDED -> vm.loadAddedRecord(recordId)
+					RecordEditorFragment.RESULT_RECORD_UPDATED -> vm.loadUpdatedRecord(recordId)
 				}
 			}
 		}
 	}
 
-	fun updateForAppending() {
-		if (activity == null) return
-		vm.viewModelScope.launch(Dispatchers.Main) {
-			val recordDao = withContext(Dispatchers.Default) { Utils.getRecordDao(context!!) }
-			val newSize = withContext(Dispatchers.IO) { recordDao.getRecordCount() }
-			if (newSize == vm.records.size) return@launch
-			check(newSize == vm.records.size + 1)
-			val recordEntry = withContext(Dispatchers.IO) { recordDao.getLastRecord() }
-			val record = withContext(Dispatchers.Default) { recordEntry.decryptRecord() }
-			// TODO: Warn about decryption failure.
-			if (record != null) {
-				vm.records.add(record)
-				requireView().findViewById<RecyclerView>(R.id.recycler_records)
-					.adapter!!.notifyItemInserted(newSize - 1)
-			}
-		}
+	fun notifyRecordAdded(recordId: Int) {
+		vm.loadAddedRecord(recordId)
 	}
 }

@@ -8,13 +8,14 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
+import android.widget.Filter
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 
 class BindLoginFragment : Fragment() {
 	companion object {
-		private const val STATE_SELECTED_ITEM = "SELECTED_ITEM"
+		private const val STATE_SELECTED_ITEM = "selectedItem"
 	}
 
 	private val vm by lazy { ViewModelProvider(requireActivity())[BindAccountViewModel::class.java] }
@@ -22,7 +23,7 @@ class BindLoginFragment : Fragment() {
 	override fun onCreateView(
 		inflater: LayoutInflater,
 		container: ViewGroup?,
-		savedInstanceState: Bundle?
+		savedInstanceState: Bundle?,
 	): View? {
 		return inflater.inflate(R.layout.fragment_bind_login, container, false)
 	}
@@ -32,40 +33,39 @@ class BindLoginFragment : Fragment() {
 		vm.selectedSchool?.let { outState.putInt(STATE_SELECTED_ITEM, it) }
 	}
 
-	override fun onViewStateRestored(savedInstanceState: Bundle?) {
-		super.onViewStateRestored(savedInstanceState)
-		savedInstanceState?.getInt(STATE_SELECTED_ITEM, -1)?.let {
-			if (it != -1) vm.selectedSchool = it
-		}
+	override fun onActivityCreated(savedInstanceState: Bundle?) {
+		super.onActivityCreated(savedInstanceState)
+		vm.selectedSchool = savedInstanceState?.getInt(STATE_SELECTED_ITEM, -1)
+			?.let { if (it == -1) null else it }
 		requireView().run {
-			vm.schools.run {
-				value?.let { updateSchoolList(it) }
-				observe(viewLifecycleOwner, { updateSchoolList(it) })
-			}
-			findViewById<AutoCompleteTextView>(R.id.dropdown_schools).apply {
-				setOnItemClickListener { _, _, position, _ -> vm.selectedSchool = position }
+			vm.schools.observe(viewLifecycleOwner) {
+				findViewById<AutoCompleteTextView>(R.id.dropdown_schools).apply {
+					val adapter = object : ArrayAdapter<BindAccountViewModel.ApiSchoolInfo>(
+						context, android.R.layout.simple_spinner_dropdown_item, it
+					) {
+						override fun getFilter(): Filter = object : Filter() {
+							override fun performFiltering(constraint: CharSequence?): FilterResults =
+								FilterResults().apply {
+									values = it
+									count = it.size
+								}
+
+							override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+								notifyDataSetChanged()
+							}
+						}
+					}
+					setAdapter(adapter)
+					inputType = InputType.TYPE_NULL
+					setOnItemClickListener { _, _, position, _ -> vm.selectedSchool = position }
+				}
 			}
 			findViewById<EditText>(R.id.input_student_id).apply {
-				vm.studentId = text.toString()
 				addTextChangedListener { vm.studentId = it.toString() }
 			}
 			findViewById<EditText>(R.id.input_password).apply {
-				vm.password = text.toString()
 				addTextChangedListener { vm.password = it.toString() }
 			}
-		}
-	}
-
-	private fun updateSchoolList(schools: List<BindAccountViewModel.ApiSchoolInfo>) {
-		requireView().findViewById<AutoCompleteTextView>(R.id.dropdown_schools).apply {
-			setAdapter(
-				ArrayAdapter(
-					context,
-					android.R.layout.simple_spinner_dropdown_item,
-					schools.toTypedArray()
-				)
-			)
-			inputType = InputType.TYPE_NULL
 		}
 	}
 }

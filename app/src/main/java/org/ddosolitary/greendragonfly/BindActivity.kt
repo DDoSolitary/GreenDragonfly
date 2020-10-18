@@ -3,7 +3,6 @@ package org.ddosolitary.greendragonfly
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -11,45 +10,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.viewpager.widget.ViewPager
-import com.bugsnag.android.Bugsnag
-import com.github.kittinunf.fuel.coroutines.awaitString
-import com.github.kittinunf.fuel.httpPost
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.json.Json
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
-import java.security.MessageDigest
 
 class BindActivity : AppCompatActivity() {
-	companion object {
-		private const val PASSWORD_HASH_ALGORITHM = "MD5"
-		private const val LOG_TAG = "BindActivity"
-	}
-
-	@Serializable
-	private data class ApiPlanInfo(
-		val r: String,
-		val m: List<RunningPlan>
-	) {
-		@Serializable
-		data class RunningPlan(
-			val atttype: String,
-			val eventname: String,
-			val eventno: String,
-			val femalemiles: String,
-			val femalespeed: String,
-			val malemiles: String,
-			val malespeed: String,
-			val maxtimesperday: String
-		)
-	}
-
 	private val vm by lazy { ViewModelProvider(this)[BindAccountViewModel::class.java] }
 	private val nextButton
 		get() = findViewById<Button>(R.id.button_next)
@@ -66,11 +31,6 @@ class BindActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_bind)
 		setSupportActionBar(findViewById(R.id.toolbar))
-		if (vm.schools.value == null) {
-			vm.viewModelScope.launch { fetchSchoolList() }
-		} else {
-			setIsWorking(false)
-		}
 		pager.apply {
 			adapter = object : FragmentPagerAdapter(
 				supportFragmentManager,
@@ -99,6 +59,41 @@ class BindActivity : AppCompatActivity() {
 					}
 				}
 			})
+		}
+		vm.isWorking.observe(this) {
+			nextButton.isEnabled = !it
+			cancelButton.isEnabled = !it
+			bindButton.isEnabled = !it
+			backButton.isEnabled = !it
+			setProgressEnabled(it)
+		}
+		vm.fetchSchoolListException.observe(this) {
+			if (it != null) {
+				setProgressEnabled(false)
+				getErrorSnackbar(getString(R.string.error_get_schools, it.localizedMessage)).apply {
+					duration = Snackbar.LENGTH_INDEFINITE
+					setAction(R.string.retry) { vm.fetchSchoolList() }
+				}.show()
+			}
+		}
+		vm.apiUserInfo.observe(this) {
+			pager.setCurrentItem(1, true)
+			ViewModelProvider(this@BindActivity)[UserInfoFragment.UserInfoViewModel::class.java]
+				.user.value = vm.toUserInfo()
+		}
+		vm.fetchUserInfoError.observe(this) {
+			getErrorSnackbar(getString(R.string.error_get_user, it)).show()
+		}
+		vm.bindAccountResult.observe(this) {
+			if (it == null) {
+				startActivity(Intent(this@BindActivity, MainActivity::class.java).apply {
+					flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+					action = MainActivity.ACTION_UPDATE_USER
+				})
+				finish()
+			} else {
+				getErrorSnackbar(getString(R.string.error_bind, it.localizedMessage)).show()
+			}
 		}
 		Utils.checkAndShowAbout(this)
 	}
@@ -142,148 +137,16 @@ class BindActivity : AppCompatActivity() {
 			).useErrorStyle(this).show()
 			return
 		}
-		vm.viewModelScope.launch { fetchUserInfo() }
+		vm.fetchUserInfo()
 	}
 
 	fun onBindClicked(@Suppress("UNUSED_PARAMETER") view: View) {
-		vm.viewModelScope.launch { bindAccount() }
+		vm.bindAccount()
 	}
 
 	private fun setProgressEnabled(isEnabled: Boolean) {
 		findViewById<MaterialProgressBar>(R.id.progress_bind).apply {
 			visibility = if (isEnabled) View.VISIBLE else View.INVISIBLE
-		}
-	}
-
-	private fun setIsWorking(isWorking: Boolean) {
-		nextButton.isEnabled = !isWorking
-		cancelButton.isEnabled = !isWorking
-		bindButton.isEnabled = !isWorking
-		backButton.isEnabled = !isWorking
-		setProgressEnabled(isWorking)
-	}
-
-	private suspend fun fetchSchoolList(): Unit = withContext(Dispatchers.Main) {
-		setIsWorking(true)
-		try {
-			val res = getString(R.string.server_url)
-				.httpPost()
-				.body(getString(R.string.api_get_schools))
-				.headerForApi()
-				.awaitString()
-			vm.schools.value =
-				Json.decodeFromString(ListSerializer(BindAccountViewModel.ApiSchoolInfo.serializer()), res)
-			setIsWorking(false)
-		} catch (e: Exception) {
-			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			Bugsnag.notify(e)
-			setProgressEnabled(false)
-			getErrorSnackbar(getString(R.string.error_get_schools, e.localizedMessage)).apply {
-				duration = Snackbar.LENGTH_INDEFINITE
-				setAction(R.string.retry) { vm.viewModelScope.launch { fetchSchoolList() } }
-			}.show()
-		}
-	}
-
-	private suspend fun fetchUserInfo() = withContext(Dispatchers.Main) {
-		setIsWorking(true)
-		val schoolId = vm.schools.value!![vm.selectedSchool!!].schoolno
-		val hashedPassword = MessageDigest.getInstance(PASSWORD_HASH_ALGORITHM).run {
-			update(vm.password.encodeToByteArray())
-			digest().joinToString("") { "%02x".format(it) }
-		}
-		try {
-			val res = getString(R.string.server_url)
-				.httpPost()
-				.body(
-					getString(
-						R.string.api_get_user_template,
-						schoolId,
-						vm.studentId,
-						hashedPassword
-					)
-				)
-				.headerForApi()
-				.awaitString()
-			if (!res.startsWith("姓名:")) {
-				getErrorSnackbar(getString(R.string.error_get_user, res)).show()
-				return@withContext
-			}
-			val fields = res.split(',').map { it.split(':')[1] }
-			vm.name = fields[0]
-			vm.genderStr = fields[1]
-			vm.classId = fields[2]
-			vm.admissionYear = fields[3]
-			pager.setCurrentItem(1, true)
-			ViewModelProvider(this@BindActivity)[UserInfoFragment.UserInfoViewModel::class.java]
-				.user.value = vm.toUserInfo()
-		} catch (e: Exception) {
-			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			Bugsnag.notify(e)
-			getErrorSnackbar(getString(R.string.error_get_user, e.localizedMessage)).show()
-		} finally {
-			setIsWorking(false)
-		}
-	}
-
-	private suspend fun bindAccount() = withContext(Dispatchers.Main) {
-		setIsWorking(true)
-		try {
-			val bindRes = getString(R.string.server_url)
-				.httpPost()
-				.body(
-					getString(
-						R.string.api_bind_template,
-						vm.schools.value!![vm.selectedSchool!!].schoolno,
-						vm.studentId
-					)
-				)
-				.headerForApi()
-				.awaitString()
-			val fields = bindRes.split(',')
-			val planRes = Json.decodeFromString(
-				ApiPlanInfo.serializer(),
-				getString(R.string.api_path_get_plan, fields[1])
-					.httpPost()
-					.body(
-						Utils.compressString(
-							getString(R.string.api_query_template, vm.studentId, fields[2])
-						)
-					)
-					.headerForApi()
-					.awaitString()
-			)
-			check(planRes.r == "1")
-			val apiPlan = planRes.m[0]
-			val minDistance = when (vm.gender) {
-				Gender.Male -> apiPlan.malemiles
-				Gender.Female -> apiPlan.femalemiles
-			}.toDouble()
-			val speedRange = when (vm.gender) {
-				Gender.Male -> apiPlan.malespeed
-				Gender.Female -> apiPlan.femalespeed
-			}.split('-').map { it.toDouble() }
-			val plan = RunningPlan(
-				apiPlan.eventname,
-				apiPlan.eventno,
-				apiPlan.atttype,
-				minDistance,
-				speedRange[0],
-				speedRange[1],
-				apiPlan.maxtimesperday.toInt()
-			)
-			UserInfo.saveUser(this@BindActivity, vm.toUserInfo(fields[2], fields[1], plan))
-			startActivity(Intent(this@BindActivity, MainActivity::class.java).apply {
-				flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-				action = MainActivity.ACTION_UPDATE_USER
-			})
-			finish()
-		} catch (e: Exception) {
-			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			Bugsnag.notify(e)
-			getErrorSnackbar(getString(R.string.error_bind, e.localizedMessage)).show()
-		} finally {
-			setIsWorking(false)
 		}
 	}
 }

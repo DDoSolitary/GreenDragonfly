@@ -51,20 +51,21 @@ class RunActivity : AppCompatActivity() {
 					ContextCompat.startForegroundService(
 						this@RunActivity,
 						serviceIntent.apply { action = RecordingService.ACTION_START_RECORDING })
-					service.statusLiveData.observe(
-						this@RunActivity,
-						{
-							if (it) {
-								onStatusUpdate()
-							} else {
-								startActivity(
-									Intent(this@RunActivity, MainActivity::class.java)
-										.apply { action = MainActivity.ACTION_SHOW_RECORDS }
-								)
-								finish()
-							}
+					service.statusLiveData.observe(this@RunActivity) {
+						if (!it.finished) {
+							onStatusUpdate()
+						} else {
+							startActivity(
+								Intent(this@RunActivity, MainActivity::class.java).apply {
+									action = MainActivity.ACTION_SHOW_RECORDS
+									if (it.recordId != null) {
+										putExtra(MainActivity.EXTRA_ADDED_RECORD_ID, it.recordId)
+									}
+								}
+							)
+							finish()
 						}
-					)
+					}
 				} else {
 					startActivity(Intent(this@RunActivity, StartupActivity::class.java))
 					finish()

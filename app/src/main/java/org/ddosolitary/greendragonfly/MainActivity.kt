@@ -1,6 +1,7 @@
 package org.ddosolitary.greendragonfly
 
 import android.Manifest
+import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -18,6 +19,7 @@ import androidx.core.content.edit
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.viewpager.widget.ViewPager
@@ -31,7 +33,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -40,12 +41,74 @@ class MainActivity : AppCompatActivity() {
 	companion object {
 		const val ACTION_SHOW_RECORDS = "org.ddosolitary.greendragonfly.action.SHOW_RECORDS"
 		const val ACTION_UPDATE_USER = "org.ddosolitary.greendragonfly.action.UPDATE_USER"
+		const val EXTRA_ADDED_RECORD_ID = "org.ddosolitary.greendragonfly.extra.ADDED_RECORD_ID"
 		private const val LOCATION_PERMISSION_REQUEST = 0
 		private const val SCROLL_THRESHOLD = 200
 		private const val LOG_TAG = "MainActivity"
 	}
 
+	class MainViewModel(app: Application) : AndroidViewModel(app) {
+		val uploadCount = SingleLiveEvent<Int>()
+		val queryCountError = SingleLiveEvent<Exception>()
+		val latestVersion = SingleLiveEvent<String>()
+
+		init { fetchLatestVersion() }
+
+		private fun fetchLatestVersion() {
+			viewModelScope.launch(Dispatchers.Main) {
+				val context = getApplication<MyApplication>().applicationContext
+				val today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+				val pref = context.getSharedPreferences(context.getString(R.string.pref_main), Context.MODE_PRIVATE)
+				val lastCheck = pref.getString(context.getString(R.string.pref_key_update_last_check), null)
+				if (lastCheck != today) {
+					pref.edit {
+						putString(context.getString(R.string.pref_key_update_last_check), today)
+						apply()
+					}
+					try {
+						val json = Json.parseToJsonElement(
+							context.getString(R.string.update_url).httpGet().awaitString()
+						)
+						latestVersion.setValue(json.jsonArray[0].jsonObject["tag_name"]!!.jsonPrimitive.content)
+					} catch (e: Exception) {
+						Bugsnag.notify(e)
+						Log.e(LOG_TAG, Log.getStackTraceString(e))
+					}
+				}
+			}
+		}
+
+		fun queryCount() {
+			viewModelScope.launch(Dispatchers.Main) {
+				val context = getApplication<MyApplication>().applicationContext
+				try {
+					val user = UserInfo.getUser(context)!!
+					val res = Json.parseToJsonElement(
+						context.getString(R.string.api_path_query_count, user.apiUrl)
+							.httpPost()
+							.body(
+								Utils.compressString(
+									context.getString(R.string.api_query_template, user.studentId, user.token)
+								)
+							)
+							.headerForApi()
+							.awaitString()
+					)
+					check(Utils.checkApiResponse(res))
+					uploadCount.setValue(res.jsonObject["m"]!!.jsonPrimitive.int)
+				} catch (e: Exception) {
+					Log.e(LOG_TAG, Log.getStackTraceString(e))
+					Bugsnag.notify(e)
+					queryCountError.setValue(e)
+				}
+			}
+		}
+	}
+
 	private val recordsFragment = RecordsFragment()
+	private val mainVm by lazy {
+		ViewModelProvider(this)[MainViewModel::class.java]
+	}
 	private val userVm by lazy {
 		ViewModelProvider(this)[UserInfoFragment.UserInfoViewModel::class.java]
 	}
@@ -60,7 +123,7 @@ class MainActivity : AppCompatActivity() {
 				e1: MotionEvent?,
 				e2: MotionEvent?,
 				distanceX: Float,
-				distanceY: Float
+				distanceY: Float,
 			): Boolean {
 				if (e1 == null || e2 == null) {
 					return super.onScroll(e1, e2, distanceX, distanceY)
@@ -100,7 +163,11 @@ class MainActivity : AppCompatActivity() {
 			if (intent?.action == ACTION_SHOW_RECORDS) currentItem = 1
 		})
 		Utils.checkAndShowAbout(this)
-		userVm.viewModelScope.launch { checkUpdate() }
+		mainVm.run {
+			latestVersion.observe(this@MainActivity) { checkUpdate(it) }
+			uploadCount.observe(this@MainActivity) { showUploadCount(it) }
+			queryCountError.observe(this@MainActivity) { showQueryCountError(it) }
+		}
 	}
 
 	override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -117,7 +184,7 @@ class MainActivity : AppCompatActivity() {
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		when (item.itemId) {
 			R.id.item_rebind -> startActivity(Intent(this, BindActivity::class.java))
-			R.id.item_query_count -> userVm.viewModelScope.launch { queryCount() }
+			R.id.item_query_count -> mainVm.queryCount()
 			R.id.item_about -> Utils.showAboutDialog(this)
 			else -> return super.onOptionsItemSelected(item)
 		}
@@ -158,7 +225,10 @@ class MainActivity : AppCompatActivity() {
 		super.onNewIntent(intent)
 		when (intent?.action) {
 			ACTION_SHOW_RECORDS -> {
-				recordsFragment.updateForAppending()
+				val recordId = intent.getIntExtra(EXTRA_ADDED_RECORD_ID, -1)
+				if (recordId != -1) {
+					recordsFragment.notifyRecordAdded(recordId)
+				}
 				pager.setCurrentItem(1, true)
 			}
 			ACTION_UPDATE_USER -> {
@@ -175,7 +245,7 @@ class MainActivity : AppCompatActivity() {
 	override fun onRequestPermissionsResult(
 		requestCode: Int,
 		permissions: Array<out String>,
-		grantResults: IntArray
+		grantResults: IntArray,
 	) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 		if (requestCode == LOCATION_PERMISSION_REQUEST) {
@@ -204,60 +274,29 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
-	private suspend fun queryCount() = withContext(Dispatchers.Main) {
-		try {
-			val user = UserInfo.getUser(this@MainActivity)!!
-			val res = Json.parseToJsonElement(
-				getString(R.string.api_path_query_count, user.apiUrl)
-					.httpPost()
-					.body(
-						Utils.compressString(
-							getString(R.string.api_query_template, user.studentId, user.token)
-						)
-					)
-					.headerForApi()
-					.awaitString()
-			)
-			check(Utils.checkApiResponse(res))
-			MaterialAlertDialogBuilder(this@MainActivity)
-				.setTitle(R.string.query_count_title)
-				.setMessage(getString(R.string.query_count_message, res.jsonObject["m"]!!.jsonPrimitive.int))
-				.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
-				.show()
-		} catch (e: Exception) {
-			Log.e(LOG_TAG, Log.getStackTraceString(e))
-			Bugsnag.notify(e)
-			Snackbar.make(
-				pager,
-				getString(R.string.error_query_count, e.localizedMessage),
-				Snackbar.LENGTH_LONG
-			).useErrorStyle(this@MainActivity).show()
-		}
+	private fun showUploadCount(count: Int) {
+		MaterialAlertDialogBuilder(this)
+			.setTitle(R.string.query_count_title)
+			.setMessage(getString(R.string.query_count_message, count))
+			.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
+			.show()
 	}
 
-	private suspend fun checkUpdate() = withContext(Dispatchers.Main) {
-		val today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-		val pref = getSharedPreferences(getString(R.string.pref_main), Context.MODE_PRIVATE)
-		val lastCheck = pref.getString(getString(R.string.pref_key_update_last_check), null)
-		if (lastCheck != today) {
-			pref.edit {
-				putString(getString(R.string.pref_key_update_last_check), today)
-				apply()
-			}
-			try {
-				val json = Json.parseToJsonElement(getString(R.string.update_url).httpGet().awaitString())
-				val latestVersion = json.jsonArray[0].jsonObject["tag_name"]!!.jsonPrimitive.content
-				if ("v${BuildConfig.VERSION_NAME}" != latestVersion) {
-					MaterialAlertDialogBuilder(this@MainActivity)
-						.setTitle(R.string.update_available_title)
-						.setMessage(getString(R.string.update_available_message, latestVersion))
-						.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
-						.show()
-				}
-			} catch (e: Exception) {
-				Bugsnag.notify(e)
-				Log.e(LOG_TAG, Log.getStackTraceString(e))
-			}
+	private fun showQueryCountError(e: Exception) {
+		Snackbar.make(
+			pager,
+			getString(R.string.error_query_count, e.localizedMessage),
+			Snackbar.LENGTH_LONG
+		).useErrorStyle(this).show()
+	}
+
+	private fun checkUpdate(latest: String) {
+		if ("v${BuildConfig.VERSION_NAME}" != latest) {
+			MaterialAlertDialogBuilder(this)
+				.setTitle(R.string.update_available_title)
+				.setMessage(getString(R.string.update_available_message, latest))
+				.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
+				.show()
 		}
 	}
 }

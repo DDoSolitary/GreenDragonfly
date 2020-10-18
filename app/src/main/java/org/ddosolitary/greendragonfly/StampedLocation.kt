@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 data class StampedLocation(
 	val timeStamp: Long,
 	val latitude: Double,
-	val longitude: Double
+	val longitude: Double,
 ) {
 	companion object {
 		fun getDuration(route: List<StampedLocation>): Double =

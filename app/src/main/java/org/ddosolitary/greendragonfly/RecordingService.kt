@@ -30,6 +30,8 @@ class RecordingService : Service() {
 		private const val LOG_TAG = "RecordingService"
 	}
 
+	data class ServiceStatus(val finished: Boolean, val recordId: Int? = null)
+
 	inner class LocalBinder : Binder() {
 		fun getService(): RecordingService = this@RecordingService
 	}
@@ -40,9 +42,9 @@ class RecordingService : Service() {
 	private val binder = LocalBinder()
 	lateinit var route: MutableList<StampedLocation>
 	var isRecording = false
-	val statusLiveData = MutableLiveData<Boolean>()
+	val statusLiveData = MutableLiveData<ServiceStatus>()
 
-	override fun onBind(intent: Intent?): IBinder? = binder
+	override fun onBind(intent: Intent?): IBinder = binder
 
 	override fun onCreate() {
 		super.onCreate()
@@ -93,7 +95,7 @@ class RecordingService : Service() {
 						generateNotification()
 					)
 				}
-				statusLiveData.value = true
+				statusLiveData.value = ServiceStatus(false)
 				delay(UPDATE_INTERVAL)
 			} catch (_: CancellationException) {
 				return@withContext
@@ -192,6 +194,7 @@ class RecordingService : Service() {
 		updateJob.cancel()
 		locationClient.stop()
 		GlobalScope.launch(Dispatchers.Main) {
+			var recordId: Int? = null
 			if (fromDestroy) {
 				getSharedPreferences(getString(R.string.pref_main), Context.MODE_PRIVATE).edit {
 					putString(
@@ -205,8 +208,8 @@ class RecordingService : Service() {
 					val recordEntry = withContext(Dispatchers.Default) {
 						RecordEntry.encryptRecord(Record(route, false))
 					}
-					withContext(Dispatchers.IO) {
-						Utils.getRecordDao(this@RecordingService).addRecord(recordEntry)
+					recordId = withContext(Dispatchers.IO) {
+						Utils.getRecordDao(this@RecordingService).addRecord(recordEntry).toInt()
 					}
 				}
 				ServiceCompat.stopForeground(
@@ -215,7 +218,7 @@ class RecordingService : Service() {
 				)
 				stopSelf()
 			}
-			statusLiveData.value = false
+			statusLiveData.value = ServiceStatus(true, recordId)
 		}
 	}
 }
