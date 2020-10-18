@@ -15,4 +15,5 @@
 	<color name="textWarning">#FFEB3B</color>
 	<color name="textDisabled">#888888</color>
 	<color name="primary">#008577</color>
+	<color name="primaryDark">#00695C</color>
 </resources>

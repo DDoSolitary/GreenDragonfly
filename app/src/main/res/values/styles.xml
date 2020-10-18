@@ -3,6 +3,7 @@
 
 	<style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
 		<item name="colorPrimary">@color/primary</item>
+		<item name="colorPrimaryDark">@color/primaryDark</item>
 		<item name="snackbarStyle">@style/AppTheme.Snackbar</item>
 		<item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.PrimarySurface</item>
 		<item name="android:textViewStyle">@style/AppTheme.TextView</item>
