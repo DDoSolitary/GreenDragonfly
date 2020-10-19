@@ -81,13 +81,13 @@ class UserInfoFragment : Fragment() {
 		return (inflater.inflate(
 			R.layout.fragment_user_info,
 			container,
-			false
+			false,
 		) as RecyclerView).apply {
-			layoutManager = LinearLayoutManager(container!!.context)
+			layoutManager = LinearLayoutManager(requireContext())
 			adapter = RecyclerAdapter()
 			addItemDecoration(
 				DividerItemDecoration(
-					container.context,
+					requireContext(),
 					DividerItemDecoration.VERTICAL
 				)
 			)

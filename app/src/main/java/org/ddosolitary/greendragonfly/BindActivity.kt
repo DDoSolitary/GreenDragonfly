@@ -8,9 +8,9 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.ViewModelProvider
-import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 
@@ -25,22 +25,22 @@ class BindActivity : AppCompatActivity() {
 	private val backButton
 		get() = findViewById<Button>(R.id.button_back)
 	private val pager
-		get() = findViewById<ViewPager>(R.id.pager_bind)
+		get() = findViewById<ViewPager2>(R.id.pager_bind)
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_bind)
 		setSupportActionBar(findViewById(R.id.toolbar))
 		pager.apply {
-			adapter = object : FragmentPagerAdapter(
-				supportFragmentManager,
-				BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT
-			) {
-				private val fragments = arrayOf(BindLoginFragment(), UserInfoFragment())
-				override fun getCount(): Int = fragments.size
-				override fun getItem(position: Int): Fragment = fragments[position]
+			isUserInputEnabled = false
+			adapter = object : FragmentStateAdapter(this@BindActivity) {
+				override fun getItemCount(): Int = 2
+				override fun createFragment(position: Int): Fragment = when (position) {
+					0 -> BindLoginFragment()
+					else -> UserInfoFragment()
+				}
 			}
-			addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+			registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
 				override fun onPageSelected(position: Int) {
 					super.onPageSelected(position)
 					when (position) {

@@ -18,11 +18,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.bugsnag.android.Bugsnag
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.httpGet
@@ -30,7 +30,7 @@ import com.github.kittinunf.fuel.httpPost
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.*
@@ -105,7 +105,6 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
-	private val recordsFragment = RecordsFragment()
 	private val mainVm by lazy {
 		ViewModelProvider(this)[MainViewModel::class.java]
 	}
@@ -113,7 +112,7 @@ class MainActivity : AppCompatActivity() {
 		ViewModelProvider(this)[UserInfoFragment.UserInfoViewModel::class.java]
 	}
 	private val pager
-		get() = findViewById<ViewPager>(R.id.pager_tab)
+		get() = findViewById<ViewPager2>(R.id.pager_tab)
 	private val fab
 		get() = findViewById<FloatingActionButton>(R.id.fab_run)
 
@@ -140,28 +139,24 @@ class MainActivity : AppCompatActivity() {
 		setContentView(R.layout.activity_main)
 		setSupportActionBar(findViewById(R.id.toolbar))
 		userVm.user.value = UserInfo.getUser(this)
-		findViewById<TabLayout>(R.id.tabs).setupWithViewPager(pager.apply {
-			adapter = object : FragmentPagerAdapter(
-				supportFragmentManager,
-				BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT
-			) {
-				private val fragments = if (BuildConfig.DEBUG) {
-					arrayOf(UserInfoFragment(), recordsFragment, DebugOptionsFragment())
-				} else {
-					arrayOf(UserInfoFragment(), recordsFragment)
-				}
-
-				override fun getCount(): Int = fragments.size
-				override fun getItem(position: Int): Fragment = fragments[position]
-				override fun getPageTitle(position: Int): CharSequence? = when (position) {
-					0 -> getString(R.string.user)
-					1 -> getString(R.string.records)
-					2 -> getString(R.string.debug_options)
-					else -> null
+		TabLayoutMediator(findViewById(R.id.tabs), pager.apply {
+			adapter = object : FragmentStateAdapter(this@MainActivity) {
+				override fun getItemCount(): Int = if (BuildConfig.DEBUG) 3 else 2
+				override fun createFragment(position: Int): Fragment = when (position) {
+					0 -> UserInfoFragment()
+					1 -> RecordsFragment()
+					else -> DebugOptionsFragment()
 				}
 			}
 			if (intent?.action == ACTION_SHOW_RECORDS) currentItem = 1
-		})
+		}) { tab, position ->
+			tab.text = when (position) {
+				0 -> getString(R.string.user)
+				1 -> getString(R.string.records)
+				2 -> getString(R.string.debug_options)
+				else -> null
+			}
+		}.attach()
 		Utils.checkAndShowAbout(this)
 		mainVm.run {
 			latestVersion.observe(this@MainActivity) { checkUpdate(it) }
@@ -227,7 +222,8 @@ class MainActivity : AppCompatActivity() {
 			ACTION_SHOW_RECORDS -> {
 				val recordId = intent.getIntExtra(EXTRA_ADDED_RECORD_ID, -1)
 				if (recordId != -1) {
-					recordsFragment.notifyRecordAdded(recordId)
+					ViewModelProvider(this)[RecordsFragment.RecordsViewModel::class.java]
+						.addedRecordId.setValue(recordId)
 				}
 				pager.setCurrentItem(1, true)
 			}

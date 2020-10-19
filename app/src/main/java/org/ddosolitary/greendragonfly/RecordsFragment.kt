@@ -168,6 +168,7 @@ class RecordsFragment : Fragment() {
 		val uploadResult = SingleLiveEvent<String>()
 		val uploadException = SingleLiveEvent<Exception>()
 		val isUploading = MutableLiveData<Boolean>()
+		val addedRecordId = SingleLiveEvent<Int>()
 
 		init { loadRecordList() }
 
@@ -262,7 +263,7 @@ class RecordsFragment : Fragment() {
 		}
 	}
 
-	private val vm by lazy { ViewModelProvider(this)[RecordsViewModel::class.java] }
+	private val vm by lazy { ViewModelProvider(requireActivity())[RecordsViewModel::class.java] }
 
 	override fun onCreateView(
 		inflater: LayoutInflater, container: ViewGroup?,
@@ -323,6 +324,9 @@ class RecordsFragment : Fragment() {
 					if (it) View.VISIBLE else View.INVISIBLE
 				adapter.notifyDataSetChanged()
 			}
+			vm.addedRecordId.observe(viewLifecycleOwner) {
+				vm.loadAddedRecord(it)
+			}
 		}
 	}
 
@@ -337,9 +341,5 @@ class RecordsFragment : Fragment() {
 				}
 			}
 		}
-	}
-
-	fun notifyRecordAdded(recordId: Int) {
-		vm.loadAddedRecord(recordId)
 	}
 }
