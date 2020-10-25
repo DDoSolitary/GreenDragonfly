@@ -12,6 +12,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 
 class UserInfoFragment : Fragment() {
 	private data class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
@@ -31,7 +36,7 @@ class UserInfoFragment : Fragment() {
 		}
 
 		override fun getItemCount(): Int =
-			if (vm.user.value == null) 0 else if (vm.user.value!!.plan == null) 6 else 9
+			if (vm.user.value == null) 0 else if (vm.user.value!!.plan == null) 6 else 11
 
 		override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 			class PropertyInfo(val name: Int, val value: String)
@@ -60,11 +65,60 @@ class UserInfoFragment : Fragment() {
 						R.string.max_times_per_day,
 						it.plan!!.maxTimesPerDay.toString()
 					)
+					9 -> PropertyInfo(
+						R.string.allowed_date,
+						"%s%s%s".format(
+							LocalDate.ofEpochDay(it.plan!!.startDate).format(DateTimeFormatter.ISO_LOCAL_DATE),
+							getString(R.string.to),
+							LocalDate.ofEpochDay(it.plan.endDate).format(DateTimeFormatter.ISO_LOCAL_DATE),
+						),
+					)
+					10 -> {
+						val builder = StringBuilder()
+						val weekDays = it.plan!!.weekDays
+						if (weekDays.isNotEmpty()) {
+							val dayToString = { day: DayOfWeek ->
+								day.getDisplayName(TextStyle.SHORT, resources.configuration.locales[0])
+							}
+							val segments = mutableListOf<String>()
+							var segStart = 0
+							for (i in 1..weekDays.size) {
+								if (i == weekDays.size || weekDays[i] > weekDays[i - 1] + 1) {
+									when (i - segStart) {
+										0 -> Unit
+										1 -> segments.add(dayToString(weekDays[segStart]))
+										2 -> {
+											segments.add(dayToString(weekDays[segStart]))
+											segments.add(dayToString(weekDays[segStart + 1]))
+										}
+										else -> segments.add("%s%s%s".format(
+											dayToString(weekDays[segStart]),
+											getString(R.string.to),
+											dayToString(weekDays[i - 1]),
+										))
+									}
+									segStart = i
+								}
+							}
+							builder.append(segments.joinToString(", "))
+							builder.append('\n')
+						}
+						builder.append("%s-%s".format(
+							LocalTime.ofSecondOfDay(it.plan.startTime.toLong())
+								.format(DateTimeFormatter.ISO_LOCAL_TIME),
+							LocalTime.ofSecondOfDay(it.plan.endTime.toLong())
+								.format(DateTimeFormatter.ISO_LOCAL_TIME),
+						))
+						PropertyInfo(R.string.allowed_time, builder.toString())
+					}
 					else -> throw IndexOutOfBoundsException()
 				}
 			}
 			view.findViewById<TextView>(R.id.text_info_name).setText(info.name)
-			view.findViewById<TextView>(R.id.text_info_value).text = info.value
+			view.findViewById<TextView>(R.id.text_info_value).run {
+				maxLines = 2
+				text = info.value
+			}
 		}
 	}
 

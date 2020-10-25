@@ -12,6 +12,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import java.security.MessageDigest
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalTime
 
 class BindAccountViewModel(app: Application) : AndroidViewModel(app) {
 	companion object {
@@ -50,6 +53,11 @@ class BindAccountViewModel(app: Application) : AndroidViewModel(app) {
 			val malemiles: String,
 			val malespeed: String,
 			val maxtimesperday: String,
+			val rulestartdt: String,
+			val ruleenddt: String,
+			val starttms: String,
+			val endtms: String,
+			val weekrg: String,
 		)
 	}
 
@@ -173,7 +181,14 @@ class BindAccountViewModel(app: Application) : AndroidViewModel(app) {
 					minDistance,
 					speedRange[0],
 					speedRange[1],
-					apiPlan.maxtimesperday.toInt()
+					apiPlan.maxtimesperday.toInt(),
+					LocalDate.parse(apiPlan.rulestartdt).toEpochDay(),
+					LocalDate.parse(apiPlan.ruleenddt).toEpochDay(),
+					LocalTime.parse(apiPlan.starttms).toSecondOfDay(),
+					LocalTime.parse(apiPlan.endtms).toSecondOfDay(),
+					apiPlan.weekrg.split(';')
+						.mapNotNull { it.toIntOrNull() }
+						.map { DayOfWeek.of(it + 1) },
 				)
 				UserInfo.saveUser(context, toUserInfo(fields[2], fields[1], plan))
 				bindAccountResult.setValue(null)

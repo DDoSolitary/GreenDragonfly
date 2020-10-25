@@ -35,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.*
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity() {
@@ -95,7 +96,10 @@ class MainActivity : AppCompatActivity() {
 							.awaitString()
 					)
 					check(Utils.checkApiResponse(res))
-					uploadCount.setValue(res.jsonObject["m"]!!.jsonPrimitive.int)
+					val resMsg = res.jsonObject["m"]!!.jsonPrimitive.content
+					val count = resMsg.toIntOrNull()
+						?: Regex("${user.plan!!.name}:(\\d+)").find(resMsg)!!.groupValues[1].toInt()
+					uploadCount.setValue(count)
 				} catch (e: Exception) {
 					Log.e(LOG_TAG, Log.getStackTraceString(e))
 					Bugsnag.notify(e)
@@ -264,9 +268,30 @@ class MainActivity : AppCompatActivity() {
 				LOCATION_PERMISSION_REQUEST
 			)
 		} else {
-			startActivity(Intent(this, RunActivity::class.java).apply {
-				flags = Intent.FLAG_ACTIVITY_NEW_TASK
-			})
+			val startRunning = {
+				startActivity(Intent(this, RunActivity::class.java).apply {
+					flags = Intent.FLAG_ACTIVITY_NEW_TASK
+				})
+			}
+			val plan = UserInfo.getUser(this)!!.plan!!
+			val msg = when {
+				LocalDate.now().toEpochDay() !in plan.startDate..plan.endDate -> R.string.warn_invalid_date
+				LocalTime.now().toSecondOfDay() !in plan.startTime..plan.endTime -> R.string.warn_invalid_time
+				else -> null
+			}
+			if (msg != null) {
+				MaterialAlertDialogBuilder(this)
+					.setTitle(R.string.warning)
+					.setMessage(msg)
+					.setPositiveButton(R.string.ok) { dialog, _ ->
+						startRunning()
+						dialog.dismiss()
+					}
+					.setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
+					.show()
+			} else {
+				startRunning()
+			}
 		}
 	}
 

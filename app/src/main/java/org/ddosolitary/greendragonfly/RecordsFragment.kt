@@ -40,7 +40,13 @@ class RecordsFragment : Fragment() {
 		private const val LOG_TAG = "RecordsFragment"
 	}
 
-	private enum class Status { Invalid, Pending, Conflict, Uploaded }
+	private enum class Status {
+		SpeedInvalid, DistanceInvalid, DateInvalid, TimeInvalid, Pending, Conflict, Uploaded;
+
+		fun isInvalid(): Boolean =
+			this == SpeedInvalid || this == DistanceInvalid || this == DateInvalid || this == TimeInvalid
+	}
+
 	private data class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
 
 	private inner class RecyclerAdapter(val records: MutableList<Record>) :
@@ -59,20 +65,37 @@ class RecordsFragment : Fragment() {
 		@SuppressLint("ClickableViewAccessibility")
 		override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 			val record = records[position]
-			val startTime = Utils.millisToTime(record.locations.first().timeStamp)
+			val startDateTime = Utils.millisToTime(record.locations.first().timeStamp)
+			val startDate = startDateTime.toLocalDate()
+			val startTime = startDateTime.toLocalTime()
+			val endDateTime = Utils.millisToTime(record.locations.last().timeStamp)
+			val endDate = endDateTime.toLocalDate()
+			val endTime = endDateTime.toLocalTime()
 			val speed = StampedLocation.getAverageSpeed(record.locations)
 			val distance = StampedLocation.getDistance(record.locations)
 			val plan = UserInfo.getUser(holder.view.context)!!.plan!!
 			val speedInRange = speed in plan.minSpeed..plan.maxSpeed
 			val distanceInRange = distance >= plan.minDistance
+			val dateInRange = startDate.toEpochDay() in plan.startDate..plan.endDate
+				&& endDate.toEpochDay() in plan.startDate..plan.endDate
+			val timeInRange = startTime.toSecondOfDay() in plan.startTime..plan.endTime
+				&& endTime.toSecondOfDay() in plan.startTime..plan.endTime
+				&& startDate.dayOfWeek in plan.weekDays
+				&& endDate.dayOfWeek in plan.weekDays
 			val status = if (record.isUploaded) {
 				Status.Uploaded
-			} else if (!speedInRange || !distanceInRange) {
-				Status.Invalid
+			} else if (!dateInRange) {
+				Status.DateInvalid
+			} else if (!timeInRange) {
+				Status.TimeInvalid
+			} else if (!distanceInRange) {
+				Status.DistanceInvalid
+			} else if (!speedInRange) {
+				Status.SpeedInvalid
 			} else {
 				val cnt = records.count {
 					val targetDate = Utils.millisToTime(it.locations.first().timeStamp).toLocalDate()
-					return@count it.isUploaded && targetDate.isEqual(startTime.toLocalDate())
+					return@count it.isUploaded && targetDate.isEqual(startDate)
 				}
 				if (cnt >= plan.maxTimesPerDay) Status.Conflict else Status.Pending
 			}
@@ -103,7 +126,7 @@ class RecordsFragment : Fragment() {
 					gestureDetector.onTouchEvent(event)
 				}
 				findViewById<TextView>(R.id.text_start_time).text =
-					startTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+					startDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
 				findViewById<TextView>(R.id.text_duration).text =
 					Utils.formatSeconds(StampedLocation.getDuration(record.locations))
 				findViewById<TextView>(R.id.text_speed).apply {
@@ -117,32 +140,31 @@ class RecordsFragment : Fragment() {
 				findViewById<TextView>(R.id.text_status).apply {
 					setText(
 						when (status) {
-							Status.Invalid -> R.string.status_invalid
+							Status.SpeedInvalid -> R.string.status_speed_invalid
+							Status.DistanceInvalid -> R.string.status_distance_invalid
+							Status.DateInvalid -> R.string.status_date_invalid
+							Status.TimeInvalid -> R.string.status_time_invalid
 							Status.Pending -> R.string.status_pending
 							Status.Conflict -> R.string.status_conflict
 							Status.Uploaded -> R.string.status_uploaded
 						}
 					)
-					setTextViewColor(this, status == Status.Invalid || status == Status.Conflict)
+					setTextViewColor(this, status.isInvalid() || status == Status.Conflict)
 				}
 				findViewById<Button>(R.id.button_record_acton).apply {
-					when (status) {
-						Status.Conflict, Status.Invalid -> {
-							setText(R.string.delete)
-							setOnClickListener { vm.deleteRecord(record.id) }
-							isEnabled = true
+					if (status.isInvalid() || status == Status.Conflict) {
+						setText(R.string.delete)
+						setOnClickListener { vm.deleteRecord(record.id) }
+						isEnabled = true
+					} else if (status == Status.Pending) {
+						setText(R.string.upload)
+						setOnClickListener {
+							vm.viewModelScope.launch { vm.uploadRecord(record) }
 						}
-						Status.Pending -> {
-							setText(R.string.upload)
-							setOnClickListener {
-								vm.viewModelScope.launch { vm.uploadRecord(record) }
-							}
-							isEnabled = true
-						}
-						Status.Uploaded -> {
-							setText(R.string.upload)
-							isEnabled = false
-						}
+						isEnabled = true
+					} else if (status == Status.Uploaded) {
+						setText(R.string.upload)
+						isEnabled = false
 					}
 					if (vm.isUploading.value == true) isEnabled = false
 				}
@@ -165,7 +187,7 @@ class RecordsFragment : Fragment() {
 		val addedRecord = SingleLiveEvent<Record>()
 		val updatedRecord = SingleLiveEvent<Record>()
 		val deletedRecordId = SingleLiveEvent<Int>()
-		val uploadResult = SingleLiveEvent<String>()
+		val uploadResult = SingleLiveEvent<Boolean>()
 		val uploadException = SingleLiveEvent<Exception>()
 		val isUploading = MutableLiveData<Boolean>()
 		val addedRecordId = SingleLiveEvent<Int>()
@@ -231,8 +253,15 @@ class RecordsFragment : Fragment() {
 						user.studentId,
 						user.plan!!.attType,
 						user.plan.eventId,
-						record.locations.joinToString("") { LatLng(it.latitude, it.longitude).toString() + ';' },
-						StampedLocation.getDuration(record.locations).roundToLong()
+						record.locations.mapIndexed { i, it ->
+							context.getString(R.string.api_upload_location_template).format(
+								it.latitude,
+								it.longitude,
+								it.timeStamp / 1000,
+								StampedLocation.getCurrentSpeed(record.locations.subList(0, i + 1)),
+							)
+						}.joinToString("@"),
+						StampedLocation.getDuration(record.locations).roundToLong(),
 					)
 					val res = Json.parseToJsonElement(
 						context.getString(R.string.api_path_upload, user.apiUrl)
@@ -242,9 +271,9 @@ class RecordsFragment : Fragment() {
 							.awaitString()
 					)
 					check(Utils.checkApiResponse(res))
-					val resMsg = Json.parseToJsonElement(res.jsonObject["m"]!!.jsonPrimitive.content)
-						.jsonObject["srvresp"]!!.jsonPrimitive.content
-					uploadResult.setValue(resMsg)
+					val resMsg = res.jsonObject["m"]!!.jsonPrimitive.content
+					val succeeded = resMsg.isNotBlank() && resMsg !in listOf("null", "-1", "-100", "-2")
+					uploadResult.setValue(succeeded)
 					record.isUploaded = true
 					val recordEntry = withContext(Dispatchers.Default) {
 						RecordEntry.encryptRecord(record)
@@ -308,7 +337,7 @@ class RecordsFragment : Fragment() {
 			vm.uploadResult.observe(viewLifecycleOwner) {
 				MaterialAlertDialogBuilder(requireContext())
 					.setTitle(R.string.upload_result)
-					.setMessage(it)
+					.setMessage(if (it) R.string.upload_succeeded else R.string.upload_failed)
 					.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
 					.show()
 			}

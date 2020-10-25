@@ -3,7 +3,9 @@ package org.ddosolitary.greendragonfly
 import android.content.Context
 import androidx.core.content.edit
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import java.time.DayOfWeek
 
 enum class Gender {
 	Male,
@@ -19,6 +21,11 @@ data class RunningPlan(
 	val minSpeed: Double,
 	val maxSpeed: Double,
 	val maxTimesPerDay: Int,
+	val startDate: Long,
+	val endDate: Long,
+	val startTime: Int,
+	val endTime: Int,
+	val weekDays: List<DayOfWeek>,
 )
 
 @Serializable
@@ -43,7 +50,11 @@ data class UserInfo(
 					context.getString(R.string.pref_main),
 					Context.MODE_PRIVATE
 				).getString(context.getString(R.string.pref_key_user), null)?.let {
-					user = Json.decodeFromString(serializer(), it)
+					try {
+						user = Json.decodeFromString(serializer(), it)
+					} catch (_: SerializationException) {
+						// Probably it's from an older version, so just ignore it.
+					}
 				}
 			}
 			return user
