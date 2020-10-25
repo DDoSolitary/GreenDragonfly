@@ -367,6 +367,7 @@ class RecordsFragment : Fragment() {
 				when (resultCode) {
 					RecordEditorFragment.RESULT_RECORD_ADDED -> vm.loadAddedRecord(recordId)
 					RecordEditorFragment.RESULT_RECORD_UPDATED -> vm.loadUpdatedRecord(recordId)
+					RecordEditorFragment.RESULT_RECORD_DELETED -> vm.deletedRecordId.setValue(recordId)
 				}
 			}
 		}

@@ -35,6 +35,7 @@ class RecordEditorFragment : DialogFragment() {
 		const val EXTRA_RECORD_ID = "org.ddosolitary.greendragonfly.extra.RECORD_ID"
 		const val RESULT_RECORD_ADDED = 0
 		const val RESULT_RECORD_UPDATED = 1
+		const val RESULT_RECORD_DELETED = 2
 		private const val STATE_START_DATE = "startDate"
 		private const val STATE_START_TIME = "startTime"
 	}
@@ -86,6 +87,15 @@ class RecordEditorFragment : DialogFragment() {
 				updateResult.setValue(UpdateResult(RESULT_RECORD_UPDATED, record.id))
 			}
 		}
+
+		fun deleteRecord(record: Record) {
+			viewModelScope.launch(Dispatchers.Main) {
+				withContext(Dispatchers.IO) {
+					Utils.getRecordDao(getApplication<MyApplication>().applicationContext).deleteRecordById(record.id)
+				}
+				updateResult.setValue(UpdateResult(RESULT_RECORD_DELETED, record.id))
+			}
+		}
 	}
 
 	private val vm by lazy { ViewModelProvider(this)[RecordEditorViewModel::class.java] }
@@ -128,6 +138,10 @@ class RecordEditorFragment : DialogFragment() {
 			view.findViewById<Button>(R.id.button_copy_record).run {
 				isEnabled = true
 				setOnClickListener { onCopyRecordClicked() }
+			}
+			view.findViewById<Button>(R.id.button_delete_record).run {
+				isEnabled = true
+				setOnClickListener { _ -> vm.deleteRecord(it) }
 			}
 			(dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).run {
 				isEnabled = true
