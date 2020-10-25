@@ -21,5 +21,7 @@
 	<string name="recording_channel_id" translatable="false">org.ddosolitary.greendragonfly.NOTIFICATION_CHANNEL_RUN</string>
 	<integer name="recording_notification_id">1</integer>
 	<string name="server_url" translatable="false">http://quantiwang.cn:8012/cloud/DflyServer</string>
+	<string name="update_channel_id" translatable="false">org.ddosolitary.greendragonfly.NOTIFICATION_CHANNEL_UPDATE</string>
+	<integer name="update_notification_id">1</integer>
 	<string name="update_url" translatable="false">https://api.github.com/repos/DDoSolitary/GreenDragonfly/releases</string>
 </resources>

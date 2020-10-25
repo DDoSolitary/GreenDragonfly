@@ -31,6 +31,7 @@ class BindActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_bind)
 		setSupportActionBar(findViewById(R.id.toolbar))
+		ViewModelProvider(this)[UpdateCheckerViewModel::class.java].checkUpdate()
 		pager.apply {
 			isUserInputEnabled = false
 			adapter = object : FragmentStateAdapter(this@BindActivity) {

@@ -51,33 +51,6 @@ class MainActivity : AppCompatActivity() {
 	class MainViewModel(app: Application) : AndroidViewModel(app) {
 		val uploadCount = SingleLiveEvent<Int>()
 		val queryCountError = SingleLiveEvent<Exception>()
-		val latestVersion = SingleLiveEvent<String>()
-
-		init { fetchLatestVersion() }
-
-		private fun fetchLatestVersion() {
-			viewModelScope.launch(Dispatchers.Main) {
-				val context = getApplication<MyApplication>().applicationContext
-				val today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-				val pref = context.getSharedPreferences(context.getString(R.string.pref_main), Context.MODE_PRIVATE)
-				val lastCheck = pref.getString(context.getString(R.string.pref_key_update_last_check), null)
-				if (lastCheck != today) {
-					pref.edit {
-						putString(context.getString(R.string.pref_key_update_last_check), today)
-						apply()
-					}
-					try {
-						val json = Json.parseToJsonElement(
-							context.getString(R.string.update_url).httpGet().awaitString()
-						)
-						latestVersion.setValue(json.jsonArray[0].jsonObject["tag_name"]!!.jsonPrimitive.content)
-					} catch (e: Exception) {
-						Bugsnag.notify(e)
-						Log.e(LOG_TAG, Log.getStackTraceString(e))
-					}
-				}
-			}
-		}
 
 		fun queryCount() {
 			viewModelScope.launch(Dispatchers.Main) {
@@ -143,6 +116,7 @@ class MainActivity : AppCompatActivity() {
 		setContentView(R.layout.activity_main)
 		setSupportActionBar(findViewById(R.id.toolbar))
 		userVm.user.value = UserInfo.getUser(this)
+		ViewModelProvider(this)[UpdateCheckerViewModel::class.java].checkUpdate()
 		TabLayoutMediator(findViewById(R.id.tabs), pager.apply {
 			adapter = object : FragmentStateAdapter(this@MainActivity) {
 				override fun getItemCount(): Int = if (BuildConfig.DEBUG) 3 else 2
@@ -163,7 +137,6 @@ class MainActivity : AppCompatActivity() {
 		}.attach()
 		Utils.checkAndShowAbout(this)
 		mainVm.run {
-			latestVersion.observe(this@MainActivity) { checkUpdate(it) }
 			uploadCount.observe(this@MainActivity) { showUploadCount(it) }
 			queryCountError.observe(this@MainActivity) { showQueryCountError(it) }
 		}
@@ -309,15 +282,5 @@ class MainActivity : AppCompatActivity() {
 			getString(R.string.error_query_count, e.localizedMessage),
 			Snackbar.LENGTH_LONG
 		).useErrorStyle(this).show()
-	}
-
-	private fun checkUpdate(latest: String) {
-		if ("v${BuildConfig.VERSION_NAME}" != latest) {
-			MaterialAlertDialogBuilder(this)
-				.setTitle(R.string.update_available_title)
-				.setMessage(getString(R.string.update_available_message, latest))
-				.setPositiveButton(R.string.close) { dialog, _ -> dialog.dismiss() }
-				.show()
-		}
 	}
 }

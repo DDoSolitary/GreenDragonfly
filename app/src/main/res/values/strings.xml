@@ -35,7 +35,7 @@
 	<string name="max_times_per_day">Max Times per Day</string>
 	<string name="min_distance">Min Distance (m)</string>
 	<string name="name">Name</string>
-	<string name="update_available_message">A new version <xliff:g>%1$s</xliff:g> has been released. Please update.</string>
+	<string name="update_available_message">A new version <xliff:g>%1$s</xliff:g> has been released. Click here to download.</string>
 	<string name="update_available_title">Update Available</string>
 	<string name="next">Next</string>
 	<string name="now" translatable="false">NOW</string>
@@ -67,6 +67,7 @@
 	<string name="status_uploaded">Uploaded</string>
 	<string name="student_id">Student ID</string>
 	<string name="to"> to </string>
+	<string name="update_channel_name">Update Notification</string>
 	<string name="upload">Upload</string>
 	<string name="uploaded">Uploaded</string>
 	<string name="upload_failed">Upload failed</string>

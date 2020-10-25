@@ -34,7 +34,7 @@
 	<string name="max_times_per_day">每日最大锻炼次数</string>
 	<string name="min_distance">单次锻炼最短距离（m）</string>
 	<string name="name">姓名</string>
-	<string name="update_available_message"><xliff:g>%1$s</xliff:g> 已经发布。请更新至最新版本。</string>
+	<string name="update_available_message"><xliff:g>%1$s</xliff:g> 已经发布。点击下载新版本。</string>
 	<string name="update_available_title">版本更新</string>
 	<string name="next">下一步</string>
 	<string name="ok">确认</string>
@@ -65,6 +65,7 @@
 	<string name="status_uploaded">已上传</string>
 	<string name="student_id">学号</string>
 	<string name="to">至</string>
+	<string name="update_channel_name">更新通知</string>
 	<string name="upload">上传</string>
 	<string name="upload_failed">上传失败</string>
 	<string name="upload_result">上传结果</string>
