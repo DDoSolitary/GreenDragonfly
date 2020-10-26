@@ -123,8 +123,12 @@ class BindAccountViewModel(app: Application) : AndroidViewModel(app) {
 					fetchUserInfoError.setValue(res)
 					return@launch
 				}
-				val fields = res.split(',').map { it.split(':')[1] }
-				apiUserInfo.value = ApiUserInfo(fields[0], fields[1], fields[2], fields[3])
+				apiUserInfo.value = ApiUserInfo(
+					Regex("姓名:([^,]+)").find(res)!!.groupValues[1],
+					Regex("性别:([^,]+)").find(res)!!.groupValues[1],
+					Regex("入学年份:([^,]+)").find(res)!!.groupValues[1],
+					Regex("班级:([^,]+)").find(res)!!.groupValues[1],
+				)
 			} catch (e: Exception) {
 				Log.e(LOG_TAG, Log.getStackTraceString(e))
 				Bugsnag.notify(e)
