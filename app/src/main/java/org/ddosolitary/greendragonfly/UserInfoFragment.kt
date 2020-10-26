@@ -67,9 +67,9 @@ class UserInfoFragment : Fragment() {
 					)
 					9 -> PropertyInfo(
 						R.string.allowed_date,
-						"%s%s%s".format(
+						getString(
+							R.string.range_template,
 							LocalDate.ofEpochDay(it.plan!!.startDate).format(DateTimeFormatter.ISO_LOCAL_DATE),
-							getString(R.string.to),
 							LocalDate.ofEpochDay(it.plan.endDate).format(DateTimeFormatter.ISO_LOCAL_DATE),
 						),
 					)
@@ -91,9 +91,9 @@ class UserInfoFragment : Fragment() {
 											segments.add(dayToString(weekDays[segStart]))
 											segments.add(dayToString(weekDays[segStart + 1]))
 										}
-										else -> segments.add("%s%s%s".format(
+										else -> segments.add(getString(
+											R.string.range_template,
 											dayToString(weekDays[segStart]),
-											getString(R.string.to),
 											dayToString(weekDays[i - 1]),
 										))
 									}

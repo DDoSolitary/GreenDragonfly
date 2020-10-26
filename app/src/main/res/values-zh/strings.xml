@@ -42,6 +42,7 @@
 	<string name="query_count">查询已上传次数</string>
 	<string name="query_count_message">你已经上传了<xliff:g>%1$d</xliff:g>次锻炼记录</string>
 	<string name="query_count_title">查询次数</string>
+	<string name="range_template">%1$s至%2$s</string>
 	<string name="rebind">重新绑定</string>
 	<string name="recording_channel_desc">记录跑步情况时显示的通知</string>
 	<string name="recording_channel_name">跑步记录服务</string>
@@ -64,7 +65,6 @@
 	<string name="status_pending">待上传</string>
 	<string name="status_uploaded">已上传</string>
 	<string name="student_id">学号</string>
-	<string name="to">至</string>
 	<string name="update_channel_name">更新通知</string>
 	<string name="upload">上传</string>
 	<string name="upload_failed">上传失败</string>

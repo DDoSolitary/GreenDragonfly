@@ -44,6 +44,7 @@
 	<string name="query_count">Query count</string>
 	<string name="query_count_message">You have uploaded <xliff:g>%1$d</xliff:g> records.</string>
 	<string name="query_count_title">Query Count</string>
+	<string name="range_template">%1$s to %2$s</string>
 	<string name="rebind">Rebind</string>
 	<string name="recording_channel_desc">The notification shown when you\'re recording your running status.</string>
 	<string name="recording_channel_name">Recording Service</string>
@@ -66,7 +67,6 @@
 	<string name="status_pending">Not uploaded</string>
 	<string name="status_uploaded">Uploaded</string>
 	<string name="student_id">Student ID</string>
-	<string name="to"> to </string>
 	<string name="update_channel_name">Update Notification</string>
 	<string name="upload">Upload</string>
 	<string name="uploaded">Uploaded</string>
