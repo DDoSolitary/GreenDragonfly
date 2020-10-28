@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -78,7 +79,8 @@ class UserInfoFragment : Fragment() {
 						val weekDays = it.plan!!.weekDays
 						if (weekDays.isNotEmpty()) {
 							val dayToString = { day: DayOfWeek ->
-								day.getDisplayName(TextStyle.SHORT, resources.configuration.locales[0])
+								val locale = ConfigurationCompat.getLocales(resources.configuration)[0]
+								day.getDisplayName(TextStyle.SHORT, locale)
 							}
 							val segments = mutableListOf<String>()
 							var segStart = 0
