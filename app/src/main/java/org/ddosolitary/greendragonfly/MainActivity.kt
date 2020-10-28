@@ -15,7 +15,6 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.edit
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.AndroidViewModel
@@ -25,7 +24,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.bugsnag.android.Bugsnag
 import com.github.kittinunf.fuel.coroutines.awaitString
-import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -36,7 +34,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.*
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity() {
 	companion object {

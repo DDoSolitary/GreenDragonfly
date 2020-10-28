@@ -24,12 +24,12 @@ class RecordEntry(
 	@ColumnInfo(name = "isUploaded") val isUploaded: Boolean,
 ) {
 	companion object {
-		const val KEYSTORE_PROVIDER = "AndroidKeyStore"
-		const val ENCRYPTION_KEY_ALIAS = "record-encryption-key"
-		const val ENCRYPTION_CIPHER = "AES/GCM/NoPadding"
-		const val ENCRYPTION_IV_LEN = 12
-		const val ENCRYPTION_TAG_LEN = 128
-		const val LOG_TAG = "RecordEntry"
+		private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
+		private const val ENCRYPTION_KEY_ALIAS = "record-encryption-key"
+		private const val ENCRYPTION_CIPHER = "AES/GCM/NoPadding"
+		private const val ENCRYPTION_IV_LEN = 12
+		private const val ENCRYPTION_TAG_LEN = 128
+		private const val LOG_TAG = "RecordEntry"
 
 		private fun genKey(): Key {
 			val props = KeyGenParameterSpec.Builder(
