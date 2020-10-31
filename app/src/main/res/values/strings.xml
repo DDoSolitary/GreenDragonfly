@@ -61,8 +61,8 @@
 	<string name="start_time">Start time</string>
 	<string name="status_conflict">Max times per day reached</string>
 	<string name="status_date_invalid">Not on allowed date</string>
-	<string name="status_distance_invalid">Speed requirement not met</string>
-	<string name="status_speed_invalid">Distance requirement not met</string>
+	<string name="status_distance_invalid">Distance requirement not met</string>
+	<string name="status_speed_invalid">Speed requirement not met</string>
 	<string name="status_time_invalid">Not in allowed time</string>
 	<string name="status_pending">Not uploaded</string>
 	<string name="status_uploaded">Uploaded</string>
