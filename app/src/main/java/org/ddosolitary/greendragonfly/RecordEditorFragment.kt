@@ -108,7 +108,9 @@ class RecordEditorFragment : DialogFragment() {
 			.setNegativeButton(R.string.cancel) { _, _ -> dismiss() }
 			.create()
 		dialog.setOnShowListener {
-			dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
+			if (vm.record.value == null) {
+				dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
+			}
 		}
 		return dialog
 	}
