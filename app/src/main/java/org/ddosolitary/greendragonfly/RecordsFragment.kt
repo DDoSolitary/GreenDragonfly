@@ -22,6 +22,7 @@ import com.bugsnag.android.Bugsnag
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.httpPost
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,7 +30,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToLong
 
@@ -348,7 +348,7 @@ class RecordsFragment : Fragment() {
 				).useErrorStyle(requireContext()).show()
 			}
 			vm.isUploading.observe(viewLifecycleOwner) {
-				requireView().findViewById<MaterialProgressBar>(R.id.progress_upload).visibility =
+				requireView().findViewById<LinearProgressIndicator>(R.id.progress_upload).visibility =
 					if (it) View.VISIBLE else View.INVISIBLE
 				adapter.notifyDataSetChanged()
 			}

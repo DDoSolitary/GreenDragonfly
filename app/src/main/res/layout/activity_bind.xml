@@ -19,17 +19,13 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		app:layout_behavior="@string/appbar_scrolling_view_behavior">
-		<me.zhanghai.android.materialprogressbar.MaterialProgressBar
+		<com.google.android.material.progressindicator.LinearProgressIndicator
 			android:id="@+id/progress_bind"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:mpb_progressStyle="horizontal"
-			app:mpb_showProgressBackground="false"
-			app:mpb_useIntrinsicPadding="false"
-			app:mpb_indeterminateTint="@color/progressBar"
-			style="@style/AppTheme.ProgressBar" />
+			style="@style/AppTheme.ProgressIndicator" />
 		<androidx.coordinatorlayout.widget.CoordinatorLayout
 			android:layout_width="match_parent"
 			android:layout_height="0dp"

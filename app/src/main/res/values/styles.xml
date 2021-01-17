@@ -17,7 +17,8 @@
 		<item name="android:textColor">?android:attr/textColorPrimary</item>
 	</style>
 
-	<style name="AppTheme.ProgressBar" parent="Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding">
+	<style name="AppTheme.ProgressIndicator" parent="Widget.MaterialComponents.LinearProgressIndicator">
 		<item name="android:indeterminate">true</item>
+		<item name="indicatorColor">@color/progressBar</item>
 	</style>
 </resources>

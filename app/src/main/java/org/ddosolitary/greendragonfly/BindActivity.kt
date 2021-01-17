@@ -11,8 +11,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.snackbar.Snackbar
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 
 class BindActivity : AppCompatActivity() {
 	private val vm by lazy { ViewModelProvider(this)[BindAccountViewModel::class.java] }
@@ -146,7 +146,7 @@ class BindActivity : AppCompatActivity() {
 	}
 
 	private fun setProgressEnabled(isEnabled: Boolean) {
-		findViewById<MaterialProgressBar>(R.id.progress_bind).apply {
+		findViewById<LinearProgressIndicator>(R.id.progress_bind).apply {
 			visibility = if (isEnabled) View.VISIBLE else View.INVISIBLE
 		}
 	}

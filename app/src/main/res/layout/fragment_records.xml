@@ -5,17 +5,12 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	tools:context=".RecordsFragment">
-	<me.zhanghai.android.materialprogressbar.MaterialProgressBar
+	<com.google.android.material.progressindicator.LinearProgressIndicator
 		android:id="@+id/progress_upload"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_gravity="top"
 		android:visibility="invisible"
-		app:mpb_progressStyle="horizontal"
-		app:mpb_showProgressBackground="false"
-		app:mpb_useIntrinsicPadding="false"
-		app:mpb_indeterminateTint="@color/progressBar"
-		style="@style/AppTheme.ProgressBar" />
+		style="@style/AppTheme.ProgressIndicator" />
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/recycler_records"
 		android:layout_width="match_parent"
