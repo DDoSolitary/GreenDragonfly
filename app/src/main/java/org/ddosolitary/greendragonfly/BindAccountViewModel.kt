@@ -193,7 +193,9 @@ class BindAccountViewModel(app: Application) : AndroidViewModel(app) {
 					LocalTime.parse(apiPlan.endtms).toSecondOfDay(),
 					apiPlan.weekrg.split(';')
 						.mapNotNull { it.toIntOrNull() }
-						.map { DayOfWeek.of(it + 1) },
+						.map { if (it == 0) { 7 } else { it } }
+						.sorted()
+						.map { DayOfWeek.of(it) },
 				)
 				UserInfo.saveUser(context, toUserInfo(fields[2], fields[1], plan))
 				bindAccountResult.setValue(null)
