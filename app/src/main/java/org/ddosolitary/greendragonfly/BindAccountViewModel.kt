@@ -186,7 +186,7 @@ class BindAccountViewModel(app: Application) : AndroidViewModel(app) {
 					minDistance,
 					speedRange[0],
 					speedRange[1],
-					apiPlan.maxtimesperday.toInt(),
+					apiPlan.maxtimesperday.toIntOrNull(),
 					LocalDate.parse(apiPlan.rulestartdt).toEpochDay(),
 					LocalDate.parse(apiPlan.ruleenddt).toEpochDay(),
 					LocalTime.parse(apiPlan.starttms).toSecondOfDay(),

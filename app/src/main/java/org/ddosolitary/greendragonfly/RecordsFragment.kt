@@ -96,7 +96,7 @@ class RecordsFragment : Fragment() {
 					val targetDate = Utils.millisToTime(it.locations.first().timeStamp).toLocalDate()
 					return@count it.isUploaded && targetDate.isEqual(startDate)
 				}
-				if (cnt >= plan.maxTimesPerDay) Status.Conflict else Status.Pending
+				if (plan.maxTimesPerDay != null && cnt >= plan.maxTimesPerDay) Status.Conflict else Status.Pending
 			}
 			val gestureDetector = GestureDetectorCompat(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
 				override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {

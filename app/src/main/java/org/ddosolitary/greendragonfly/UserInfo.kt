@@ -20,7 +20,7 @@ data class RunningPlan(
 	val minDistance: Double,
 	val minSpeed: Double,
 	val maxSpeed: Double,
-	val maxTimesPerDay: Int,
+	val maxTimesPerDay: Int?,
 	val startDate: Long,
 	val endDate: Long,
 	val startTime: Int,

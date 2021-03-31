@@ -64,7 +64,7 @@ class UserInfoFragment : Fragment() {
 					7 -> PropertyInfo(R.string.min_distance, "%.2f".format(it.plan!!.minDistance))
 					8 -> PropertyInfo(
 						R.string.max_times_per_day,
-						it.plan!!.maxTimesPerDay.toString()
+						it.plan!!.maxTimesPerDay?.toString() ?: "N/A"
 					)
 					9 -> PropertyInfo(
 						R.string.allowed_date,
