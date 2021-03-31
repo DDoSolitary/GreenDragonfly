@@ -45,6 +45,7 @@ class BindAccountViewModel(app: Application) : AndroidViewModel(app) {
 	) {
 		@Serializable
 		data class RunningPlan(
+			val areaid: String,
 			val atttype: String,
 			val eventname: String,
 			val eventno: String,
