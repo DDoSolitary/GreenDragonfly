@@ -11,8 +11,8 @@ android {
 		applicationId "org.ddosolitary.greendragonfly"
 		minSdkVersion 23
 		targetSdkVersion 30
-		versionCode 11
-		versionName "1.2.5"
+		versionCode 12
+		versionName "1.2.6"
 	}
 	buildTypes {
 		release {
